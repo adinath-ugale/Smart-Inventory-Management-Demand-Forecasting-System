@@ -1,0 +1,19 @@
+Check_ID,Validation_Check,Status,Evidence
+1,"Row count unchanged (73,100 rows)",PASS,"Output rows = 73,100 (Source = 73,100)"
+2,No duplicate Date + Store ID + Product ID,PASS,"0 duplicate keys found across 73,100 rows"
+3,Exactly 100 Store x Product groups,PASS,Unique Store_Product_ID = 100
+4,Dates remain chronological within groups,PASS,Monotonic increasing across all 100 Store_Product_ID series
+5,No future Units Sold used,PASS,Max_Source_Demand_Date_Used <= D - 1 day for 100% of rows
+6,Current-day Units Sold not used for decision-date demand baseline,PASS,Series shifted by +1 day prior to expanding/rolling aggregation
+7,Demand Forecast not used for baseline,PASS,Demand Forecast completely excluded from calculations & output dataset
+8,No TEST data used,PASS,Source demand masked for Date > 2023-10-20; test.csv untouched
+9,No negative Safety Stock,PASS,Min Safety_Stock = 188.3131
+10,No negative Reorder Point,PASS,Min Reorder_Point = 484.7759
+11,Lead_Time_Days belongs to configured assumption set,PASS,"Lead_Time_Days = 4 in [2, 4, 7]"
+12,Service_Level belongs to configured assumption set,PASS,"Service_Level = 0.95 in [0.9, 0.95, 0.99]"
+13,Missing historical STD is not converted to zero,PASS,"Day 1 (2022-01-01, 100 rows) Demand_Std preserved as NaN (0 zero-fills)"
+14,Fallback source is recorded,PASS,"100% of rows tagged with STORE_PRODUCT, PRODUCT, STORE, or GLOBAL_TRAIN"
+15,Estimated stockout risk is between 0 and 1 where available,PASS,"Range: [0.110186, 0.999975] across 73,000 valid rows"
+16,Reorder_Flag is consistent with Current_Inventory and Reorder_Point,PASS,"100% exact match (1 iff Current_Inventory <= Reorder_Point, NaN on cold-start)"
+17,Inventory_Action is consistent with Reorder_Flag,PASS,"REORDER (Flag=1), MONITOR (Flag=0), INSUFFICIENT_DATA (Flag=NaN)"
+18,All critical leakage checks PASS,PASS,"All 5 leakage audit columns = PASS across 73,100 rows & locked files verified via SHA-256"

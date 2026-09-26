@@ -1,0 +1,51 @@
+Feature,Approved_Status,Used_In_Step10,Feature_Type,Leakage_Risk,Reason
+Category,APPROVED (Locked 33),YES,Categorical,NONE (Verified Pre-Prediction-Timestamp t),Approved Categorical feature in locked 33-feature schema; verified in Step 10 pipeline
+Region,APPROVED (Locked 33),YES,Categorical,NONE (Verified Pre-Prediction-Timestamp t),Approved Categorical feature in locked 33-feature schema; verified in Step 10 pipeline
+Seasonality,APPROVED (Locked 33),YES,Categorical,NONE (Verified Pre-Prediction-Timestamp t),Approved Categorical feature in locked 33-feature schema; verified in Step 10 pipeline
+Year,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Month,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Day,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Day_of_Week,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Is_Weekend,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Units_Sold_Lag_1,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Units_Sold_Lag_3,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Units_Sold_Lag_7,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Units_Sold_Lag_14,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Units_Sold_Lag_21,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Units_Sold_Lag_30,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Units_Sold_Rolling_Mean_7,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Units_Sold_Rolling_Std_7,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Units_Sold_Rolling_Mean_14,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Units_Sold_Rolling_Std_14,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Units_Sold_Rolling_Mean_30,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Units_Sold_Rolling_Std_30,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Units_Sold_Rolling_Median_7,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Units_Sold_Trend_7,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Demand_CV_7,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Demand_CV_14,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Demand_CV_30,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Inventory_Lag_1,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Units_Ordered_Lag_1,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Inventory_Demand_Coverage_7,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Order_Demand_Ratio_7,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Price_Lag_1,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Discount_Lag_1,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Competitor_Price_Gap_Lag_1,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Promotion_Lag_1,APPROVED (Locked 33),YES,Numerical,NONE (Verified Pre-Prediction-Timestamp t),Approved Numerical feature in locked 33-feature schema; verified in Step 10 pipeline
+Units Sold,UNAPPROVED / EXCLUDED,NO,Target Variable,CRITICAL (Direct Target Leakage),Model target column y; never allowed in X
+Demand Forecast,UNAPPROVED / EXCLUDED,NO,Legacy Synthetic Target,CRITICAL (Target Proxy Leakage),Removed in model_ready_dataset; forbidden in X
+Date,UNAPPROVED / EXCLUDED,NO,Metadata / Timestamp,METADATA (Timestamp Key),Chronological index; excluded from feature matrix X
+Store ID,UNAPPROVED / EXCLUDED,NO,Metadata / Entity Key,METADATA (Entity Identifier),Store identifier; excluded from feature matrix X
+Product ID,UNAPPROVED / EXCLUDED,NO,Metadata / Entity Key,METADATA (Entity Identifier),Product identifier; excluded from feature matrix X
+Inventory Level,UNAPPROVED / EXCLUDED,NO,Contemporaneous State (t),HIGH (Same-Day State Leakage),Replaced by Inventory_Lag_1
+Units Ordered,UNAPPROVED / EXCLUDED,NO,Contemporaneous Decision (t),HIGH (Same-Day Decision Leakage),Replaced by Units_Ordered_Lag_1
+Price,UNAPPROVED / EXCLUDED,NO,Contemporaneous Pricing (t),HIGH (Same-Day Pricing Leakage),Replaced by Price_Lag_1
+Discount,UNAPPROVED / EXCLUDED,NO,Contemporaneous Promotion (t),HIGH (Same-Day Discount Leakage),Replaced by Discount_Lag_1
+Competitor Pricing,UNAPPROVED / EXCLUDED,NO,Contemporaneous External (t),HIGH (Same-Day Competitor Leakage),Replaced by Competitor_Price_Gap_Lag_1
+Holiday/Promotion,UNAPPROVED / EXCLUDED,NO,Contemporaneous Flag (t),HIGH (Same-Day Promotion Leakage),Replaced by Promotion_Lag_1
+Weather Condition,UNAPPROVED / EXCLUDED,NO,Unapproved Contemporaneous (t),MODERATE (Same-Day Unapproved),Excluded from locked 33 features
+Week_of_Year,UNAPPROVED / EXCLUDED,NO,Redundant Calendar,LOW (Collinear with Month/Day),Excluded in final feature audit
+Quarter,UNAPPROVED / EXCLUDED,NO,Redundant Calendar,LOW (Collinear with Month),Excluded in final feature audit
+Month_Name,UNAPPROVED / EXCLUDED,NO,Redundant Text Calendar,LOW (Duplicate of Month),Excluded in final feature audit
+Day_Name,UNAPPROVED / EXCLUDED,NO,Redundant Text Calendar,LOW (Duplicate of Day_of_Week),Excluded in final feature audit
+Demand_CV_Change_7_30,UNAPPROVED / EXCLUDED,NO,Redundant Derived Ratio,LOW (Linear Combination of CV_7 and CV_30),Excluded in final feature audit

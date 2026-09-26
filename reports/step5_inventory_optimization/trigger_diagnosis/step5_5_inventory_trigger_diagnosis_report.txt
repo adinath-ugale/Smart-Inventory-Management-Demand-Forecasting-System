@@ -1,0 +1,285 @@
+================================================================================
+STEP 5.5 — INVENTORY TRIGGER-RATE DIAGNOSIS
+================================================================================
+
+1. OBJECTIVE
+--------------------------------------------------------------------------------
+Perform a strictly read-only, leakage-safe mathematical and distributional
+diagnosis of the Step 5 inventory optimization dataset on TRAIN + VALIDATION
+(2022-01-01 through 2023-10-20; 65,800 rows) to explain WHY the unchanged
+classical reorder-point policy produces a 100.00% Conditional Policy Trigger Rate
+under the Base Scenario (Lead_Time_Days = 4, Service_Level = 95%, Z = 1.6449)
+and across sensitivity scenarios.
+
+This step is purely diagnostic. It does NOT alter the policy formulas, tune
+thresholds, reduce safety stock, modify lead time or service level assumptions,
+or touch the locked TEST dataset.
+
+2. INPUT DATASET
+--------------------------------------------------------------------------------
+- Primary Input File       : C:\SIM&DFS\data\processed\inventory_optimization_dataset.csv
+- Input Shape Verified     : 73,100 rows x 45 columns (Read-Only)
+- Source SHA-256 Before    : 5b99992ce112d9dc4eccb0293d23756eec81e590545e1280cafefec0d57b559b
+- Source SHA-256 After     : 5b99992ce112d9dc4eccb0293d23756eec81e590545e1280cafefec0d57b559b (UNCHANGED = PASS)
+- Entity Structure         : 5 Stores (S001–S005) x 20 Products (P0001–P0020) = 100 Store_Product_IDs
+
+3. TRAIN / VALIDATION / TEST PROTECTION
+--------------------------------------------------------------------------------
+- Development Scope Used   : TRAIN (2022-01-01 to 2023-08-08: 58,500 rows) +
+                             VALIDATION (2023-08-09 to 2023-10-20: 7,300 rows) = 65,800 rows.
+- Locked TEST Window       : 2023-10-21 to 2024-01-01 (7,300 rows) — 100% EXCLUDED.
+- TEST File Checksum Audit :
+  * TEST_SHA256_BEFORE     : 4fd35bc0da8548ed50e347d6d0a00f925d75a40ee3382f79f51dff3462edbe96
+  * TEST_SHA256_AFTER      : 4fd35bc0da8548ed50e347d6d0a00f925d75a40ee3382f79f51dff3462edbe96
+  * TEST_FILE_UNCHANGED    : PASS
+
+4. ACTIVE DECISION POPULATION
+--------------------------------------------------------------------------------
+A row is classified as an ACTIVE decision row if and only if all five required
+policy inputs are non-null: Current_Inventory, Demand_Baseline, Demand_Std,
+Lead_Time_Days, and Service_Level_Z.
+
+- Total TRAIN + VALIDATION Rows : 65,800 (100.0000%)
+- Active Decision Rows          : 65,700 (99.8480%) [2022-01-02 to 2023-10-20]
+- Insufficient-Data Rows        : 100 (0.1520%) [Cold-start Day 1: 2022-01-01]
+
+5. POLICY FORMULA USED (100% LOCKED)
+--------------------------------------------------------------------------------
+- Lead_Time_Demand = Demand_Baseline * Lead_Time_Days
+- Safety_Stock     = Service_Level_Z * Demand_Std * sqrt(Lead_Time_Days)
+- Reorder_Point    = Lead_Time_Demand + Safety_Stock
+- Reorder_Flag     = 1 if Current_Inventory <= Reorder_Point else 0 (for Active rows)
+
+6. CURRENT INVENTORY SEMANTICS
+--------------------------------------------------------------------------------
+- Inventory_Semantics_Status    : UNKNOWN (inventory_level_time_semantics = 'unknown')
+- Methodological Statement      :
+  "The trigger comparison is mathematically evaluated using the recorded Inventory Level,
+   but operational interpretation is limited because the timing semantics of Inventory Level
+   are unknown."
+  * If Inventory Level is beginning-of-day (BOD) inventory: the trigger comparison can be
+    interpreted as a same-time operational check at the start of day D.
+  * If Inventory Level is end-of-day (EOD) inventory: the comparison is temporally misaligned
+    with a start-of-day decision and should be interpreted only as a diagnostic comparison.
+
+7. BASE SCENARIO CONFIGURATION
+--------------------------------------------------------------------------------
+- Assumed Lead_Time_Days        : 4 days (Lead_Time_Source = 'ASSUMED_SCENARIO')
+- Assumed Target Service_Level  : 95% (Service_Level_Source = 'ASSUMED_POLICY')
+- Derived Service_Level_Z       : 1.6449
+- Active Decision Population    : 65,700 rows
+
+8. FOUR-WAY DECOMPOSITION (BASE SCENARIO: LT=4, SL=95%)
+--------------------------------------------------------------------------------
+Bucket | Condition                                     | Rows   | % of Active | % of Total (65,800)
+---------------------------------------------------------------------------------------------------
+A      | Inventory <= Lead_Time_Demand (Component 1)   | 65,355 |    99.4749% |    99.3237%
+B      | Lead_Time_Demand < Inventory <= ROP (Comp. 2) |    345 |     0.5251% |     0.5243%
+C      | Inventory > Reorder_Point [MONITOR] (Comp. 3) |      0 |     0.0000% |     0.0000%
+D      | Required Inputs Unavailable (Cold-Start)      |    100 |         N/A |     0.1520%
+---------------------------------------------------------------------------------------------------
+- Identity Verification:
+  * A + B + C = 65,700 == Active_Rows (65,700) [PASS]
+  * A + B + C + D = 65,800 == Total_Rows (65,800) [PASS]
+  * Reorder_Count (A + B) = 65,700 | Monitor_Count (C) = 0
+  * Conditional Policy Trigger Rate = 100.0000%
+    (Component_1 [Lead-Time Demand Trigger] = 99.4749% +
+     Component_2 [Safety-Stock Additional Trigger] = 0.5251%)
+
+9. RATIO DISTRIBUTION DIAGNOSTICS (ACTIVE ROWS = 65,700)
+--------------------------------------------------------------------------------
+Ratio Name                    |   Mean | Median |    Std |    Min |    P05 |    P25 |    P75 |    P95 |    Max | % <0.50 | % <1.00 | % >=1.00
+-----------------------------------------------------------------------------------------------------------------------------------------------
+Inventory_to_Lead_Time_Demand | 0.5048 | 0.5007 | 0.2429 | 0.0520 | 0.1324 | 0.2967 | 0.7086 | 0.8832 | 1.9016 |  49.90% |  99.47% |    0.53%
+Inventory_to_Safety_Stock     | 0.7705 | 0.7655 | 0.3679 | 0.1218 | 0.2028 | 0.4550 | 1.0831 | 1.3437 | 2.6000 |  28.63% |  68.42% |   31.58%
+Inventory_to_Reorder_Point    | 0.3047 | 0.3026 | 0.1456 | 0.0373 | 0.0800 | 0.1794 | 0.4282 | 0.5318 | 0.8933 |  89.26% | 100.00% |    0.00%
+Safety_Stock_to_Reorder_Point | 0.3956 | 0.3957 | 0.0153 | 0.2446 | 0.3738 | 0.3896 | 0.4021 | 0.4150 | 0.6533 |  99.85% | 100.00% |    0.00%
+
+Explicit Threshold Split for Inventory_to_Reorder_Point (Base Scenario):
+  - % strictly below 1.0 (Current_Inventory < Reorder_Point)  : 100.0000% (65,700 rows)
+  - % equal to 1.0       (Current_Inventory == Reorder_Point) : 0.0000% (0 rows)
+  - % strictly above 1.0 (Current_Inventory > Reorder_Point)  : 0.0000% (0 rows)
+  - Maximum observed Inventory_to_Reorder_Point across all 65,700 active rows is 0.8933 (where Current_Inventory <= 499 and min Reorder_Point = 484.78).
+
+10. INVENTORY COMPONENT DISTRIBUTION (BASE SCENARIO: ACTIVE ROWS = 65,700)
+--------------------------------------------------------------------------------
+Field Name          |    Mean |  Median |     Std |     Min |     P05 |     P25 |     P75 |     P95 |     Max
+--------------------------------------------------------------------------------------------------------------
+Current_Inventory   |  274.50 |  273.00 |  129.94 |   50.00 |   72.00 |  162.00 |  387.00 |  478.00 |  500.00
+Demand_Baseline     |  136.70 |  136.55 |    9.94 |   49.44 |  122.62 |  131.80 |  142.01 |  150.91 |  248.57
+Demand_Std          |  108.60 |  108.48 |    5.75 |   57.24 |   99.67 |  105.63 |  111.96 |  117.16 |  145.65
+Lead_Time_Demand    |  546.80 |  546.19 |   39.75 |  197.78 |  490.47 |  527.18 |  568.04 |  603.64 |  994.29
+Safety_Stock        |  357.27 |  356.89 |   18.91 |  188.31 |  327.90 |  347.49 |  368.33 |  385.44 |  479.15
+Reorder_Point       |  904.07 |  904.16 |   52.42 |  484.78 |  827.64 |  875.92 |  934.48 |  982.13 | 1380.07
+
+11. SAFETY-STOCK CONTRIBUTION TO REORDER POINT (BASE SCENARIO)
+--------------------------------------------------------------------------------
+- Ratio: Safety_Stock / Reorder_Point (and % contribution = Safety_Stock / Reorder_Point * 100):
+  * Mean Contribution   : 39.56% (Ratio = 0.3956)
+  * Median Contribution : 39.57% (Ratio = 0.3957)
+  * P25 Contribution    : 38.96% (Ratio = 0.3896)
+  * P75 Contribution    : 40.21% (Ratio = 0.4021)
+  * P95 Contribution    : 41.50% (Ratio = 0.4150)
+- Complement (Lead_Time_Demand / Reorder_Point):
+  * Mean Contribution   : 60.44%
+- Interpretation:
+  In the Base Scenario (LT=4 days, SL=95%), Reorder_Point (mean 904.07 units) is composed of
+  60.48% Lead_Time_Demand (mean 546.80 units) and 39.52% Safety_Stock (mean 357.27 units).
+  Thus, Lead-Time Demand is the larger component (~60.5% of ROP), while Safety Stock contributes ~39.5%.
+
+12. STORE x PRODUCT ANALYSIS (100 ENTITY GROUPS)
+--------------------------------------------------------------------------------
+- Verified Group Count                       : 100 groups (5 Stores x 20 Products)
+- Identity Check (Reorder + Monitor = Active): PASS across all 100 / 100 groups
+- Groups with 100.00% Trigger Rate           : 100 / 100 groups (100.0%)
+- Groups with 0.00% Trigger Rate             : 0 / 100 groups (0.0%)
+- Groups with Trigger Rate in (0%, 100%)     : 0 / 100 groups (0.0%)
+- Group Conditional Trigger Rate Range       : Min = 100.0000% | Median = 100.0000% | Max = 100.0000%
+- Group Bucket A Rate (Inv <= LTD) Range     : Min = 95.28% | Median = 99.85% | Max = 100.00%
+- Group Mean Inventory_to_ROP Range          : Min = 0.2746 | Median = 0.3044 | Max = 0.3345
+
+13. NINE-SCENARIO SENSITIVITY MATRIX (TRAIN + VALIDATION: 65,700 ACTIVE ROWS)
+--------------------------------------------------------------------------------
+Scenario | LT |  SL |      Z | Mean_LTD |  Mean_SS | Mean_ROP | Mean_Inv/ROP | Bucket_A% | Bucket_B% | Bucket_C% | Trigger_Rate%
+--------------------------------------------------------------------------------------------------------------------------------
+LT2_SL90 |  2 | 90% | 1.2816 |   273.40 |   196.83 |   470.23 |       0.5857 |    49.91% |    43.23% |     6.86% |        93.14%
+LT2_SL95 |  2 | 95% | 1.6449 |   273.40 |   252.63 |   526.03 |       0.5235 |    49.91% |    49.48% |     0.61% |        99.39%
+LT2_SL99 |  2 | 99% | 2.3263 |   273.40 |   357.28 |   630.68 |       0.4365 |    49.91% |    50.05% |     0.04% |        99.96%
+LT4_SL90 |  4 | 90% | 1.2816 |   546.80 |   278.36 |   825.16 |       0.3339 |    99.47% |     0.53% |     0.00% |       100.00%
+LT4_SL95 |  4 | 95% | 1.6449 |   546.80 |   357.27 |   904.07 |       0.3047 |    99.47% |     0.53% |     0.00% |       100.00%
+LT4_SL99 |  4 | 99% | 2.3263 |   546.80 |   505.27 |  1052.07 |       0.2617 |    99.47% |     0.53% |     0.00% |       100.00%
+LT7_SL90 |  7 | 90% | 1.2816 |   956.90 |   368.24 |  1325.14 |       0.2079 |   100.00% |     0.00% |     0.00% |       100.00%
+LT7_SL95 |  7 | 95% | 1.6449 |   956.90 |   472.63 |  1429.52 |       0.1927 |   100.00% |     0.00% |     0.00% |       100.00%
+LT7_SL99 |  7 | 99% | 2.3263 |   956.90 |   668.41 |  1625.31 |       0.1695 |   100.00% |     0.00% |     0.00% |       100.00%
+
+14. SCENARIO CONSISTENCY CHECKS
+--------------------------------------------------------------------------------
+- Monotonicity with respect to Lead Time (2 -> 4 -> 7 days):
+  Holding Service Level fixed, increasing Lead Time strictly increases Lead_Time_Demand,
+  Safety_Stock, and Reorder_Point across 100% of active rows: PASS.
+- Monotonicity with respect to Service Level (90% -> 95% -> 99%):
+  Holding Lead Time fixed, increasing Service Level strictly increases Safety_Stock and
+  Reorder_Point across 100% of active rows: PASS.
+- Additive Identity (Reorder_Point == Lead_Time_Demand + Safety_Stock):
+  Verified within 1e-12 floating-point tolerance across all 9 scenarios: PASS.
+
+15. LEAKAGE AUDIT (12 VERIFICATION CHECKS)
+--------------------------------------------------------------------------------
+  [PASS] CHECK_01: TEST rows excluded — 0 TEST rows in development set (65,800 TRAIN+VALIDATION rows; max date = 2023-10-20)
+  [PASS] CHECK_02: TEST Units Sold excluded — All historical baselines capped <= 2023-10-20; splits/test.csv never read
+  [PASS] CHECK_03: No future demand used — Max_Source_Demand_Date_Used <= D - 1 day across all 65,800 rows
+  [PASS] CHECK_04: No current-day Units Sold used — Current-day Units Sold strictly excluded from Demand_Baseline and Demand_Std
+  [PASS] CHECK_05: Demand Forecast not used — Demand Forecast column absent from dataset and unused in any calculation
+  [PASS] CHECK_06: TRAIN + VALIDATION only — Development population restricted strictly to TRAIN (58,500) + VALIDATION (7,300)
+  [PASS] CHECK_07: Policy formula unchanged — LTD = Baseline*LT; SS = Z*Std*sqrt(LT); ROP = LTD + SS verified to 1e-12 tolerance
+  [PASS] CHECK_08: Row grain preserved — 1 unique row per Date x Store ID x Product ID (65,800 rows)
+  [PASS] CHECK_09: Store x Product grouping valid — 100 unique Store_Product_ID groups; Reorder_Count + Monitor_Count = Active_Rows everywhere
+  [PASS] CHECK_10: Scenario calculations use only allowed assumptions — LT in {2, 4, 7} & SL in {90%, 95%, 99%}; monotonicity across LT and SL verified
+  [PASS] CHECK_11: Source inventory_optimization_dataset.csv unmodified — SHA-256 unchanged (5b99992ce112d9dc...)
+  [PASS] CHECK_12: TEST file (splits/test.csv) SHA-256 unchanged — SHA-256 unchanged (4fd35bc0da8548ed...)
+
+16. ROOT-CAUSE INTERPRETATION (EXPLICIT ANSWERS TO Q1–Q8)
+--------------------------------------------------------------------------------
+Q1. Is the 100% trigger rate primarily caused by Inventory <= Lead-Time Demand?
+    - YES. In the Base Scenario (LT = 4 days, SL = 95%), 65,355 out of 65,700 active rows
+      (99.4749%) already trigger in Bucket A (Current_Inventory <= Lead_Time_Demand)
+      before any Safety Stock is added.
+    - Specifically, recorded Current_Inventory spans [50.00, 499.00] units (mean = 274.50, median = 273.00),
+      whereas 4-day Lead_Time_Demand (4 * ~136.70 daily units) has a mean of 546.80 units (median = 546.19,
+      P05 = 490.47, min = 197.78). Even with zero safety stock, 99.47% of active decision rows have
+      recorded inventory at or below 4-day expected lead-time demand.
+
+Q2. Or is inventory generally above Lead-Time Demand but below ROP because of Safety Stock?
+    - In the Base Scenario (LT = 4 days, SL = 95%), only 345 rows (0.5251% of active rows)
+      have Current_Inventory > Lead_Time_Demand and are pushed into a reorder trigger solely by Safety Stock
+      (Bucket B).
+    - However, under the 2-day Lead Time scenarios (LT = 2 days, where Mean Lead_Time_Demand = 273.40 units,
+      closely matching Mean Current_Inventory = 274.50 units), Bucket A (Inventory <= Lead_Time_Demand) accounts for
+      49.91% of active rows (32,791 rows), while Safety Stock (Bucket B) accounts for an additional 43.23%
+      (28,400 rows at SL=90%), 49.48% (32,508 rows at SL=95%), and 50.05% (32,884 rows at SL=99%) of active rows.
+
+Q3. How large is the Safety Stock relative to ROP?
+    - In the Base Scenario (LT = 4 days, SL = 95%), Mean Safety_Stock is 357.27 units (median = 356.89,
+      min = 188.31, max = 479.15), which represents a Mean of 39.56% (Median = 39.57%,
+      IQR = [38.96%, 40.21%]) of the total Reorder_Point (mean = 904.07 units).
+    - Lead_Time_Demand accounts for the remaining 60.44% of Reorder_Point.
+    - Notably, Mean Safety_Stock alone (357.27 units) exceeds Mean Current_Inventory (274.50 units), and on
+      68.42% of active rows, Current_Inventory is smaller than Safety_Stock alone.
+
+Q4. How far below/above ROP is Current Inventory?
+    - Across all 65,700 active rows in the Base Scenario, Current_Inventory is strictly below Reorder_Point
+      on 100.00% of rows (0 rows equal to or above ROP).
+    - In absolute unit terms (Current_Inventory - Reorder_Point):
+      * Mean Gap   : -629.57 units (i.e., Current_Inventory is on average 629.57 units below ROP)
+      * Median Gap : -630.12 units below ROP
+      * P05 to P95 : [-846.99, -412.05] units
+      * Closest Row: -56.50 units below ROP (Max Inventory_to_Reorder_Point ratio = 0.8933)
+    - Even relative to 4-day Lead_Time_Demand alone (Current_Inventory - Lead_Time_Demand), Current_Inventory
+      is on average -272.30 units below 4-day Lead_Time_Demand (median = -273.05 units).
+
+Q5. Does the 100% trigger rate occur across most Store x Product groups or only selected groups?
+    - It occurs uniformly across ALL 100 out of 100 Store x Product groups (100.0% of entities).
+    - Every single Store_Product_ID group (5 Stores x 20 Products) has a Conditional Policy Trigger Rate
+      of exactly 100.00% (Min = 100.00%, Median = 100.00%, Max = 100.00%), with group-level Mean
+      Inventory_to_Reorder_Point ratios tightly bounded between 0.2746 and 0.3345.
+    - Bucket A (Inventory <= Lead_Time_Demand) accounts for 95.28% to 100.00% (median = 99.85%) of active
+      rows within each of the 100 Store x Product entities.
+
+Q6. How does trigger rate change when Lead Time = 2, 4, 7 and Service Level = 90%, 95%, 99%?
+    - At Lead Time = 2 days (Mean LTD = 273.40 units):
+      * Bucket A (Inv <= LTD) is 49.91% (32,791 rows).
+      * Total Conditional Trigger Rate rises from 93.14% at SL=90% (Bucket B = 43.23%, Bucket C = 6.86% [4,509 MONITOR rows]),
+        to 99.39% at SL=95% (Bucket B = 49.48%, Bucket C = 0.61% [401 MONITOR rows]), and
+        99.96% at SL=99% (Bucket B = 50.05%, Bucket C = 0.04% [25 MONITOR rows]).
+    - At Lead Time = 4 days (Mean LTD = 546.80 units):
+      * Bucket A (Inv <= LTD) is 99.47% (65,355 rows) and Bucket B is 0.53% (345 rows), yielding a
+        100.00% Conditional Trigger Rate across all three service levels (90%, 95%, 99%).
+    - At Lead Time = 7 days (Mean LTD = 956.90 units):
+      * Bucket A (Inv <= LTD) reaches 100.00% (65,700 rows) and Bucket B is 0.00%, yielding a
+        100.00% Conditional Trigger Rate across all three service levels (90%, 95%, 99%).
+
+Q7. Does the scenario behavior remain mathematically consistent with the unchanged formulas?
+    - YES. All 9 scenarios obey exact mathematical monotonicity and additive identity:
+      * Holding Service Level constant, scaling Lead Time from 2 -> 4 -> 7 scales Lead_Time_Demand
+        linearly by 2x -> 4x -> 7x (273.40 -> 546.80 -> 956.90) and scales Safety_Stock by
+        sqrt(2) -> sqrt(4) -> sqrt(7) (e.g., at SL=95%: 252.63 -> 357.27 -> 472.63).
+      * Holding Lead Time constant, increasing Service Level from 90% -> 95% -> 99% scales
+        Safety_Stock proportionally to Z (1.2816 -> 1.6449 -> 2.3263).
+
+Q8. How does the unknown Inventory Level timing semantics limit operational interpretation?
+    - Because the source dataset records Inventory Level on [50, 499] units (averaging ~2.01 days of supply:
+      274.56 / 136.70 = 2.01 days) without specifying whether Inventory Level is beginning-of-day (BOD)
+      on-hand stock or end-of-day (EOD) post-sales residual stock, and without recording cumulative on-order
+      pipeline inventory (Inventory Position = On-Hand + On-Order), comparing recorded Inventory Level directly
+      against a multi-day Reorder_Point (4 days of demand + safety stock = 904.07 units) evaluates only
+      recorded on-hand stock against a 4-day pipeline requirement.
+    - Therefore, the trigger comparison is mathematically evaluated using the recorded Inventory Level,
+      but operational interpretation is limited because the timing and pipeline semantics of Inventory Level
+      are unknown.
+
+17. LIMITATIONS
+--------------------------------------------------------------------------------
+1. Inventory Timing Semantics (UNKNOWN): Whether Inventory Level represents beginning-of-day
+   or end-of-day physical inventory is unverified in the source dataset.
+2. Unobserved On-Order Pipeline Inventory: In multi-day lead-time replenishment systems (e.g., LT = 4
+   or 7 days), when on-hand stock averages ~2.01 days of demand (274.56 units), continuous review
+   policies compare Inventory Position (On-Hand + On-Order - Backorders) against Reorder_Point. Because
+   Units Ordered semantics are unverified, Current_Inventory reflects recorded Inventory Level only.
+3. Cold-Start Day 1 (2022-01-01): 100 rows have zero prior historical observations (Date < 2022-01-01)
+   and are explicitly isolated in Bucket D (INSUFFICIENT_DATA).
+
+18. CONCLUSION
+--------------------------------------------------------------------------------
+The observed trigger rate results from the relationship between recorded inventory and the
+calculated reorder point under the specified assumptions:
+- MEASURED: Recorded Current_Inventory spans 50 to 499 units (mean = 274.50 units, equivalent to
+  ~2.01 days of average daily demand of 136.70 units, with daily demand STD = 108.60 units).
+- ASSUMED: Under the Base Scenario (assumed Lead_Time_Days = 4, assumed target Service_Level = 95%
+  with Z = 1.6449), the policy requires coverage for 4 days of expected demand plus 4-day uncertainty.
+- DERIVED: Mean Lead_Time_Demand is 546.80 units and Mean Safety_Stock is 357.27 units, yielding
+  a Mean Reorder_Point of 904.07 units (minimum ROP = 484.78 units). Because maximum recorded
+  Current_Inventory (499.00 units) never exceeds its row-matched Reorder_Point (max Inventory/ROP
+  ratio = 0.8933), 99.47% of active rows (65,355 rows) trigger from Lead-Time Demand alone (Bucket A)
+  and the remaining 0.53% (345 rows) trigger from Safety Stock (Bucket B), resulting in a 100.00% Conditional
+  Policy Trigger Rate across all 100 Store x Product groups.
+================================================================================

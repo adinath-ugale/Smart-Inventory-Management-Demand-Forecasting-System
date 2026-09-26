@@ -1,0 +1,2 @@
+Population_Scope,Date_Range,Total_Train_Val_Rows,Active_Decision_Rows,Insufficient_Data_Rows,Active_Percentage,Insufficient_Percentage,Inventory_Semantics_Status
+TRAIN_AND_VALIDATION_ONLY,2022-01-01 to 2023-10-20,65800,65700,100,99.848024,0.151976,UNKNOWN

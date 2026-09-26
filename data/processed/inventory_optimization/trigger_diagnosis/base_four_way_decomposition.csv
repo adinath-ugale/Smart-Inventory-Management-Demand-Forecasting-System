@@ -1,0 +1,5 @@
+Bucket,Condition,Component_Label,Count,Pct_of_Active_Rows,Pct_of_Total_Train_Val_Rows,Operational_Diagnostic_Interpretation
+BUCKET_A,Inventory <= Lead_Time_Demand,Component_1_Lead_Time_Demand_Trigger,65355,99.474886,99.323708,Current recorded inventory is at or below expected demand during the assumed 4-day lead time.
+BUCKET_B,Lead_Time_Demand < Inventory <= Reorder_Point,Component_2_Safety_Stock_Additional_Trigger,345,0.525114,0.524316,"Inventory exceeds expected 4-day lead-time demand, but falls within the additional safety-stock buffer zone."
+BUCKET_C,Inventory > Reorder_Point,Component_3_Above_ROP_Monitor,0,0.0,0.0,Inventory is above the calculated reorder threshold (MONITOR).
+BUCKET_D,Required inputs unavailable,Insufficient_Data_Cold_Start,100,,0.151976,No valid operational trigger can be calculated (2022-01-01 cold-start rows).

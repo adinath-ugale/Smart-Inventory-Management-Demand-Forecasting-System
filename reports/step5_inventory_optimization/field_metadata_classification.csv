@@ -1,0 +1,39 @@
+Field,Classification,Definition,Source,Availability,Leakage_Risk
+Date,MEASURED,Observation / decision calendar date,cleaned_inventory.csv,Known on or before decision date D,NONE
+Store ID,MEASURED,Unique store identifier (S001–S005),cleaned_inventory.csv,Known static entity key,NONE
+Product ID,MEASURED,Unique product identifier (P0001–P0020),cleaned_inventory.csv,Known static entity key,NONE
+Store_Product_ID,DERIVED,"Composite entity key (Store ID + '_' + Product ID, 100 groups)",Derived from Store ID & Product ID,Known static entity key,NONE
+Category,MEASURED,Product merchandise category,cleaned_inventory.csv,Known static attribute,NONE
+Region,MEASURED,Store geographical region,cleaned_inventory.csv,Known static attribute,NONE
+Inventory Level,MEASURED,Recorded daily inventory quantity in source dataset,cleaned_inventory.csv,Time-of-day recording semantics unverified ('unknown'),MODERATE — Must not assume BOD without verification
+Units Sold,MEASURED,Observed daily demand proxy,cleaned_inventory.csv,Known ONLY after sales day D completes (Date < D for decisions),HIGH — Day D and future (>D) strictly excluded from baselines
+Units Ordered,MEASURED,Recorded units ordered in source dataset,cleaned_inventory.csv,Order timing/on-order semantics unverified,MODERATE — Excluded from on-order inventory position
+Demand Forecast,REFERENCE_ONLY,Source dataset pre-computed forecast column (EXCLUDED from dataset/baselines),cleaned_inventory.csv,Excluded per Step 13 & Step 5 leakage policy,HIGH — Strictly excluded from all calculations
+Historical_Demand_Count,DERIVED,Count of available historical Units Sold observations before decision date D within Store x Product,Units Sold where Date < D (capped <= 2023-10-20),Available at START of day D,NONE
+Demand_Baseline,DERIVED FROM MEASURED HISTORY,Historical mean Units Sold before decision date D with 4-tier entity fallback (min 7 obs),Units Sold where Date < D,Available at START of day D,NONE
+Demand_Std,DERIVED FROM MEASURED HISTORY,Historical sample STD (ddof=1) of Units Sold before D with 4-tier fallback (min 30 obs),Units Sold where Date < D,Available at START of day D,NONE
+Demand_Median,DERIVED FROM MEASURED HISTORY,Historical median Units Sold before decision date D within Store x Product,Units Sold where Date < D,Available at START of day D,NONE
+Recent_Demand_Mean_7,DERIVED FROM MEASURED HISTORY,"Rolling 7-day mean Units Sold over strictly prior days [D-7, D-1]",Units Sold where Date < D,Available at START of day D,NONE
+Recent_Demand_Mean_30,DERIVED FROM MEASURED HISTORY,"Rolling 30-day mean Units Sold over strictly prior days [D-30, D-1]",Units Sold where Date < D,Available at START of day D,NONE
+Demand_Baseline_Source,DERIVED,"Fallback hierarchy level used for Demand_Baseline (STORE_PRODUCT, PRODUCT, STORE, GLOBAL_TRAIN)",Fallback logic evaluation at D,Available at START of day D,NONE
+Demand_Std_Source,DERIVED,"Fallback hierarchy level used for Demand_Std (STORE_PRODUCT, PRODUCT, STORE, GLOBAL_TRAIN)",Fallback logic evaluation at D,Available at START of day D,NONE
+Lead_Time_Days,ASSUMED,"Assumed replenishment lead time in days (Base=4; Scenarios=2, 4, 7)",Business scenario configuration,Known policy parameter at D,NONE
+Lead_Time_Source,ASSUMED,Origin indicator for Lead_Time_Days ('ASSUMED_SCENARIO'),Configuration metadata,Known at D,NONE
+Lead_Time_Demand,DERIVED,Expected demand over assumed lead time (Demand_Baseline * Lead_Time_Days),Derived from Demand_Baseline & Lead_Time_Days,Available at START of day D,NONE
+Service_Level,ASSUMED,"Target cycle service level policy assumption (Base=0.95; Scenarios=0.90, 0.95, 0.99)",Business policy configuration,Known policy parameter at D,NONE
+Service_Level_Source,ASSUMED,Origin indicator for Service_Level ('ASSUMED_POLICY'),Configuration metadata,Known at D,NONE
+Service_Level_Z,DERIVED FROM ASSUMED,Standard normal inverse CDF quantile Z corresponding to assumed Service_Level (1.6449 for 95%),Derived from Service_Level,Known at D,NONE
+Safety_Stock,DERIVED,Buffer stock for lead-time demand uncertainty (Service_Level_Z * Demand_Std * sqrt(Lead_Time_Days)),"Derived from Z, Demand_Std, Lead_Time_Days",Available at START of day D,NONE
+Safety_Stock_Method,DERIVED,Formula specification label ('STD_SQRT_LEAD_TIME'),Configuration metadata,Known at D,NONE
+Reorder_Point,DERIVED,Primary inventory control threshold (Lead_Time_Demand + Safety_Stock),Derived from Lead_Time_Demand & Safety_Stock,Available at START of day D,NONE
+Current_Inventory,MEASURED,Recorded Inventory Level mapped for conditional state comparison,Inventory Level in cleaned_inventory.csv,Subject to inventory_level_time_semantics ('unknown'),MODERATE — Annotated with SEMANTICS_UNKNOWN
+inventory_level_time_semantics,ASSUMED,"Explicit configuration documenting whether Inventory Level is BOD, EOD, or unknown ('unknown')",Configuration metadata,Known at D,NONE
+Inventory_Usability_Status,DERIVED,Usability flag for Current_Inventory ('SEMANTICS_UNKNOWN'),Derived from inventory_level_time_semantics,Known at D,NONE
+Estimated_Stockout_Risk,DERIVED / MODEL ESTIMATE,Normal-approximation probability P(Demand_LT > Current_Inventory) = 1 - Phi((Current_Inventory - mu_L)/sigma_L),"Derived from Current_Inventory, mu_L, sigma_L",Available at START of day D (where STD exists),NONE
+Stockout_Risk_Method,DERIVED,Methodology label ('NORMAL_APPROXIMATION'),Configuration metadata,Known at D,NONE
+Stockout_Risk_Status,DERIVED,Availability status ('ESTIMATED' or 'NOT_AVAILABLE'),Derived from input availability,Known at D,NONE
+Observed_Stockout_Flag,DERIVED,Binary indicator (1 if Inventory Level <= 0 else 0); equivalent to Zero_Inventory_Flag until semantics verified,Derived from Inventory Level,Known when Inventory Level is recorded,NONE
+Reorder_Flag,DERIVED,Binary trigger indicator (1 if Current_Inventory <= Reorder_Point else 0; NaN if INSUFFICIENT_DATA),Derived from Current_Inventory & Reorder_Point,Conditional on Current_Inventory usability,NONE
+Inventory_Action,DERIVED,"Operational recommendation ('REORDER', 'MONITOR', or 'INSUFFICIENT_DATA')",Derived from Reorder_Flag & data availability,Conditional on Current_Inventory usability,NONE
+Historical_Cutoff_Date,DERIVED,Strict maximum historical calendar date eligible for decision D (D - 1 day),Derived from Date,Known at START of day D,NONE
+Information_Available_As_Of,DERIVED,Audit stamp recording decision timestamp and historical cutoff date,Derived from Date & Historical_Cutoff_Date,Known at START of day D,NONE

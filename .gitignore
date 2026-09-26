@@ -1,0 +1,67 @@
+# ==============================================================================
+# SMART INVENTORY MANAGEMENT & DEMAND FORECASTING SYSTEM (SIM&DFS)
+# .gitignore
+# ==============================================================================
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / Optimized Python Files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Environment Variables, Secrets & Credentials
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.cert
+*.crt
+kaggle.json
+credentials.json
+client_secrets.json
+
+# Local Scratch, Debug & Temporary Files
+tmp/
+temp/
+*.tmp
+*.log
+pwd
+
+# Streamlit Local Configuration & Secrets
+.streamlit/secrets.toml
+
+# IDE & Editor Configurations
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+.settings/
+
+# Operating System Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
+*-checkpoint.ipynb
+
+# Large Binary Artifacts Exceeding GitHub's 100 MB Limit
+# (Metrics and parameters preserved in reports/step10_baseline_training_report.txt)
+models/baseline/random_forest_baseline.joblib

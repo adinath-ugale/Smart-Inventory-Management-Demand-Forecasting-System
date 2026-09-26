@@ -1,0 +1,5 @@
+Matrix_Category,Policy_Decision,Future_Demand_Condition,Count,Pct_of_Eligible_Backtest_Pop,ROP_Equivalent_Category,ROP_Equivalent_Count,ROP_Equivalent_Pct
+REORDER + LTD Covered,REORDER,Future_Demand_4D <= Lead_Time_Demand,34842,53.2752,REORDER + ROP Covered (Future_Demand_4D <= ROP),61019,93.3012
+REORDER + LTD Exceeded,REORDER,Future_Demand_4D > Lead_Time_Demand,30558,46.7248,REORDER + ROP Exceeded (Future_Demand_4D > ROP),4381,6.6988
+MONITOR + LTD Covered,MONITOR,Future_Demand_4D <= Lead_Time_Demand,0,0.0,MONITOR + ROP Covered (Future_Demand_4D <= ROP),0,0.0
+MONITOR + LTD Exceeded,MONITOR,Future_Demand_4D > Lead_Time_Demand,0,0.0,MONITOR + ROP Exceeded (Future_Demand_4D > ROP),0,0.0

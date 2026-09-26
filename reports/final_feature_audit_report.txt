@@ -1,0 +1,746 @@
+================================================================================
+SMART INVENTORY MANAGEMENT & DEMAND FORECASTING SYSTEM
+FINAL FEATURE ENGINEERING AUDIT (50 COLUMNS)
+================================================================================
+Input Dataset : C:\SIM&DFS\data\processed\feature_engineered_step8.csv
+Audit Report  : C:\SIM&DFS\reports\final_feature_audit_report.txt
+Corr Matrix   : C:\SIM&DFS\reports\final_feature_correlation_matrix.csv
+
+================================================================================
+1. DATASET INTEGRITY AUDIT
+================================================================================
+Total Rows        : 73,100 (Expected: 73,100)
+Total Columns     : 50 (Expected: 50)
+Duplicate Rows    : 0 (Expected: 0)
+Duplicate Key (Store+Product+Date) : 0 (Expected: 0)
+Store-Product Groups               : 100 (Expected: 100)
+Invalid / Unparseable Dates        : 0 (Expected: 0)
+Chronological Monotonicity / Group : True (Expected: True)
+
+Dataset Integrity Status: PASSED
+
+================================================================================
+2. COMPLETE FEATURE INVENTORY (50 COLUMNS)
+================================================================================
+ No.                 Column Name                    Role Tag   Dtype  Non-Null  Missing Missing %  Unique       Min       Max      Mean      Std
+   1                        Date                                 str     73100        0     0.00%     731         -         -         -        -
+   2                    Store ID                                 str     73100        0     0.00%       5         -         -         -        -
+   3                  Product ID                                 str     73100        0     0.00%      20         -         -         -        -
+   4                    Category                                 str     73100        0     0.00%       5         -         -         -        -
+   5                      Region                                 str     73100        0     0.00%       4         -         -         -        -
+   6             Inventory Level                               int64     73100        0     0.00%     451   50.0000  500.0000  274.4699 129.9495
+   7                  Units Sold                    [TARGET]   int64     73100        0     0.00%     498    0.0000  499.0000  136.4649 108.9194
+   8               Units Ordered                               int64     73100        0     0.00%     181   20.0000  200.0000  110.0045  52.2774
+   9             Demand Forecast [PROHIBITED / LEAKAGE RISK] float64     72427      673     0.92%   31156    0.0100  518.5500  142.8438 108.8559
+  10                       Price                             float64     73100        0     0.00%    8999   10.0000  100.0000   55.1351  26.0219
+  11                    Discount                               int64     73100        0     0.00%       5    0.0000   20.0000   10.0095   7.0837
+  12           Weather Condition                                 str     73100        0     0.00%       4         -         -         -        -
+  13           Holiday/Promotion                               int64     73100        0     0.00%       2    0.0000    1.0000    0.4973   0.5000
+  14          Competitor Pricing                             float64     73100        0     0.00%    9751    5.0300  104.9400   55.1461  26.1914
+  15                 Seasonality                                 str     73100        0     0.00%       4         -         -         -        -
+  16                        Year                               int64     73100        0     0.00%       3 2022.0000 2024.0000 2022.5021   0.5027
+  17                       Month                               int64     73100        0     0.00%      12    1.0000   12.0000    6.5185   3.4516
+  18                  Month_Name                                 str     73100        0     0.00%      12         -         -         -        -
+  19                         Day                               int64     73100        0     0.00%      31    1.0000   31.0000   15.7004   8.8071
+  20                 Day_of_Week                               int64     73100        0     0.00%       7    0.0000    6.0000    3.0027   2.0034
+  21                    Day_Name                                 str     73100        0     0.00%       7         -         -         -        -
+  22                Week_of_Year                               int64     73100        0     0.00%      52    1.0000   52.0000   26.5349  15.0664
+  23                     Quarter                               int64     73100        0     0.00%       4    1.0000    4.0000    2.5075   1.1174
+  24                  Is_Weekend                               int64     73100        0     0.00%       2    0.0000    1.0000    0.2873   0.4525
+  25            Units_Sold_Lag_1                             float64     73000      100     0.14%     499    0.0000  499.0000  136.4704 108.9197
+  26            Units_Sold_Lag_7                             float64     72400      700     0.96%     499    0.0000  499.0000  136.4565 108.9640
+  27           Units_Sold_Lag_14                             float64     71700     1400     1.92%     499    0.0000  499.0000  136.4967 109.0303
+  28           Units_Sold_Lag_30                             float64     70100     3000     4.10%     499    0.0000  499.0000  136.5016 109.0514
+  29   Units_Sold_Rolling_Mean_7                             float64     72400      700     0.96%    1780   16.2857  327.8571  136.4848  41.0600
+  30    Units_Sold_Rolling_Std_7                             float64     72400      700     0.96%   71563    7.0812  214.5681  104.0812  32.4385
+  31  Units_Sold_Rolling_Mean_14                             float64     71700     1400     1.92%    2481   40.5000  275.4286  136.4900  29.1280
+  32   Units_Sold_Rolling_Std_14                             float64     71700     1400     1.92%   71207   24.2374  186.2315  106.7843  21.9389
+  33  Units_Sold_Rolling_Mean_30                             float64     70100     3000     4.10%    3506   72.3333  219.0667  136.4991  20.1268
+  34   Units_Sold_Rolling_Std_30                             float64     70100     3000     4.10%   69722   48.3105  156.4628  108.0678  14.5859
+  35            Units_Sold_Lag_3                             float64     72800      300     0.41%     499    0.0000  499.0000  136.5106 108.9486
+  36           Units_Sold_Lag_21                             float64     71000     2100     2.87%     499    0.0000  499.0000  136.4378 109.0470
+  37 Units_Sold_Rolling_Median_7                             float64     72400      700     0.96%     344    5.0000  395.0000  115.8969  52.9797
+  38          Units_Sold_Trend_7                             float64     72400      700     0.96%   14597  -80.2857   82.4643    0.0060  20.5766
+  39                 Demand_CV_7                             float64     72400      700     0.96%   72173    0.0966    2.0632    0.7850   0.2110
+  40                Demand_CV_14                             float64     71700     1400     1.92%   71477    0.2658    1.7428    0.7960   0.1458
+  41                Demand_CV_30                             float64     70100     3000     4.10%   69883    0.4669    1.2692    0.7987   0.0964
+  42       Demand_CV_Change_7_30                             float64     70100     3000     4.10%   70100   -0.7859    1.0958   -0.0130   0.1927
+  43             Inventory_Lag_1                             float64     73000      100     0.14%     452   50.0000  500.0000  274.4832 129.9484
+  44         Units_Ordered_Lag_1                             float64     73000      100     0.14%     182   20.0000  200.0000  110.0013  52.2772
+  45 Inventory_Demand_Coverage_7                             float64     72400      700     0.96%   61974    0.2014   17.7917    2.1545   1.2262
+  46        Order_Demand_Ratio_7                             float64     72400      700     0.96%   53253    0.0653    8.1667    0.8938   0.5597
+  47                 Price_Lag_1                             float64     73000      100     0.14%    9000   10.0000  100.0000   55.1377  26.0235
+  48              Discount_Lag_1                             float64     73000      100     0.14%       6    0.0000   20.0000   10.0099   7.0833
+  49  Competitor_Price_Gap_Lag_1                             float64     73000      100     0.14%    5101   -5.0000    5.0000   -0.0109   2.8886
+  50             Promotion_Lag_1                             float64     73000      100     0.14%       3    0.0000    1.0000    0.4973   0.5000
+
+TARGET COLUMN IDENTIFIED        : Units Sold (Primary Supervised Learning Target)
+PROHIBITED COLUMN IDENTIFIED    : Demand Forecast (Marked as EXCLUDED — LEAKAGE / TARGET-DERIVED RISK)
+
+================================================================================
+3. MISSING VALUE AUDIT
+================================================================================
+Total Columns with Missing Values : 27 out of 50
+Total Columns without Missing Values: 23 out of 50
+
+                     Column  Missing Count Missing %                                                 Classification
+            Demand Forecast            673     0.92% A. Raw Missingness (Pre-existing in source raw data: 673 NaNs)
+           Units_Sold_Lag_1            100     0.14%              A. Structural / Expected (Lag / Rolling Boundary)
+           Units_Sold_Lag_7            700     0.96%              A. Structural / Expected (Lag / Rolling Boundary)
+          Units_Sold_Lag_14           1400     1.92%              A. Structural / Expected (Lag / Rolling Boundary)
+          Units_Sold_Lag_30           3000     4.10%              A. Structural / Expected (Lag / Rolling Boundary)
+  Units_Sold_Rolling_Mean_7            700     0.96%              A. Structural / Expected (Lag / Rolling Boundary)
+   Units_Sold_Rolling_Std_7            700     0.96%              A. Structural / Expected (Lag / Rolling Boundary)
+ Units_Sold_Rolling_Mean_14           1400     1.92%              A. Structural / Expected (Lag / Rolling Boundary)
+  Units_Sold_Rolling_Std_14           1400     1.92%              A. Structural / Expected (Lag / Rolling Boundary)
+ Units_Sold_Rolling_Mean_30           3000     4.10%              A. Structural / Expected (Lag / Rolling Boundary)
+  Units_Sold_Rolling_Std_30           3000     4.10%              A. Structural / Expected (Lag / Rolling Boundary)
+           Units_Sold_Lag_3            300     0.41%              A. Structural / Expected (Lag / Rolling Boundary)
+          Units_Sold_Lag_21           2100     2.87%              A. Structural / Expected (Lag / Rolling Boundary)
+Units_Sold_Rolling_Median_7            700     0.96%              A. Structural / Expected (Lag / Rolling Boundary)
+         Units_Sold_Trend_7            700     0.96%              A. Structural / Expected (Lag / Rolling Boundary)
+                Demand_CV_7            700     0.96%              A. Structural / Expected (Lag / Rolling Boundary)
+               Demand_CV_14           1400     1.92%              A. Structural / Expected (Lag / Rolling Boundary)
+               Demand_CV_30           3000     4.10%              A. Structural / Expected (Lag / Rolling Boundary)
+      Demand_CV_Change_7_30           3000     4.10%              A. Structural / Expected (Lag / Rolling Boundary)
+            Inventory_Lag_1            100     0.14%              A. Structural / Expected (Lag / Rolling Boundary)
+        Units_Ordered_Lag_1            100     0.14%              A. Structural / Expected (Lag / Rolling Boundary)
+Inventory_Demand_Coverage_7            700     0.96%              A. Structural / Expected (Lag / Rolling Boundary)
+       Order_Demand_Ratio_7            700     0.96%              A. Structural / Expected (Lag / Rolling Boundary)
+                Price_Lag_1            100     0.14%              A. Structural / Expected (Lag / Rolling Boundary)
+             Discount_Lag_1            100     0.14%              A. Structural / Expected (Lag / Rolling Boundary)
+ Competitor_Price_Gap_Lag_1            100     0.14%              A. Structural / Expected (Lag / Rolling Boundary)
+            Promotion_Lag_1            100     0.14%              A. Structural / Expected (Lag / Rolling Boundary)
+
+Missing Value Audit Result: PASSED (All missingness is 100% structural/expected)
+
+================================================================================
+4. CONSTANT COLUMN AUDIT (nunique == 1)
+================================================================================
+No constant columns detected across all 50 features.
+Constant Column Audit Result: PASSED (0 constant features)
+
+================================================================================
+5. NEAR-CONSTANT COLUMN AUDIT
+================================================================================
+No features exceed the 95% or 99% near-constant threshold.
+Near-Constant Audit Result: PASSED (0 near-constant features >= 95%)
+
+================================================================================
+6. INFINITE VALUE AUDIT
+================================================================================
+Infinite values count across all numeric columns: 0
+Infinite Value Audit Result: PASSED (0 infinite values)
+
+================================================================================
+7. DATA TYPE AUDIT & COLUMN CLASSIFICATION
+================================================================================
+                     Column Pandas Dtype                    Semantic Classification
+                       Date          str          Date (ISO-8601 String / Datetime)
+                   Store ID          str            Identifier (Categorical String)
+                 Product ID          str            Identifier (Categorical String)
+                   Category          str             Categorical (String / Nominal)
+                     Region          str             Categorical (String / Nominal)
+            Inventory Level        int64               Continuous Numeric (Float64)
+                 Units Sold        int64         Target (Integer/Continuous Demand)
+              Units Ordered        int64 Integer Numeric (Discrete Business Metric)
+            Demand Forecast      float64               Continuous Numeric (Float64)
+                      Price      float64               Continuous Numeric (Float64)
+                   Discount        int64 Integer Numeric (Discrete Business Metric)
+          Weather Condition          str             Categorical (String / Nominal)
+          Holiday/Promotion        int64                       Binary (0 / 1 / NaN)
+         Competitor Pricing      float64               Continuous Numeric (Float64)
+                Seasonality          str             Categorical (String / Nominal)
+                       Year        int64           Integer Numeric (Calendar Cycle)
+                      Month        int64           Integer Numeric (Calendar Cycle)
+                 Month_Name          str             Categorical (String / Nominal)
+                        Day        int64           Integer Numeric (Calendar Cycle)
+                Day_of_Week        int64           Integer Numeric (Calendar Cycle)
+                   Day_Name          str             Categorical (String / Nominal)
+               Week_of_Year        int64           Integer Numeric (Calendar Cycle)
+                    Quarter        int64           Integer Numeric (Calendar Cycle)
+                 Is_Weekend        int64                       Binary (0 / 1 / NaN)
+           Units_Sold_Lag_1      float64               Continuous Numeric (Float64)
+           Units_Sold_Lag_7      float64               Continuous Numeric (Float64)
+          Units_Sold_Lag_14      float64               Continuous Numeric (Float64)
+          Units_Sold_Lag_30      float64               Continuous Numeric (Float64)
+  Units_Sold_Rolling_Mean_7      float64               Continuous Numeric (Float64)
+   Units_Sold_Rolling_Std_7      float64               Continuous Numeric (Float64)
+ Units_Sold_Rolling_Mean_14      float64               Continuous Numeric (Float64)
+  Units_Sold_Rolling_Std_14      float64               Continuous Numeric (Float64)
+ Units_Sold_Rolling_Mean_30      float64               Continuous Numeric (Float64)
+  Units_Sold_Rolling_Std_30      float64               Continuous Numeric (Float64)
+           Units_Sold_Lag_3      float64               Continuous Numeric (Float64)
+          Units_Sold_Lag_21      float64               Continuous Numeric (Float64)
+Units_Sold_Rolling_Median_7      float64               Continuous Numeric (Float64)
+         Units_Sold_Trend_7      float64               Continuous Numeric (Float64)
+                Demand_CV_7      float64               Continuous Numeric (Float64)
+               Demand_CV_14      float64               Continuous Numeric (Float64)
+               Demand_CV_30      float64               Continuous Numeric (Float64)
+      Demand_CV_Change_7_30      float64               Continuous Numeric (Float64)
+            Inventory_Lag_1      float64               Continuous Numeric (Float64)
+        Units_Ordered_Lag_1      float64               Continuous Numeric (Float64)
+Inventory_Demand_Coverage_7      float64               Continuous Numeric (Float64)
+       Order_Demand_Ratio_7      float64               Continuous Numeric (Float64)
+                Price_Lag_1      float64               Continuous Numeric (Float64)
+             Discount_Lag_1      float64               Continuous Numeric (Float64)
+ Competitor_Price_Gap_Lag_1      float64               Continuous Numeric (Float64)
+            Promotion_Lag_1      float64                       Binary (0 / 1 / NaN)
+
+Semantic & Data Type Audit Result: PASSED (All columns preserve intended representation)
+
+================================================================================
+8. TARGET LEAKAGE AUDIT
+================================================================================
+                     Column      Leakage Status                                                                                          Audit Detail & Reason
+                       Date                PASS                                            Static entity attributes or chronological split index; zero leakage
+                   Store ID                PASS                                            Static entity attributes or chronological split index; zero leakage
+                 Product ID                PASS                                            Static entity attributes or chronological split index; zero leakage
+                   Category                PASS                                            Static entity attributes or chronological split index; zero leakage
+                     Region                PASS                                            Static entity attributes or chronological split index; zero leakage
+            Inventory Level    REVIEW / EXCLUDE Current-day stock level on day t (r = 0.590 with Units Sold); unavailable prior to date t; use Inventory_Lag_1
+                 Units Sold       FAIL (TARGET)                                               Ground-truth target variable; cannot be used as an input feature
+              Units Ordered    REVIEW / EXCLUDE  Current-day order quantity on day t; operational outcome unavailable prior to date t; use Units_Ordered_Lag_1
+            Demand Forecast FAIL (LEAKAGE RISK)                   Pre-computed demand forecast with r = 0.997 correlation with target; encodes target directly
+                      Price              REVIEW               Current-day t feature; verify if planned/scheduled in advance or use corresponding lag-1 feature
+                   Discount              REVIEW               Current-day t feature; verify if planned/scheduled in advance or use corresponding lag-1 feature
+          Weather Condition              REVIEW               Current-day t feature; verify if planned/scheduled in advance or use corresponding lag-1 feature
+          Holiday/Promotion              REVIEW               Current-day t feature; verify if planned/scheduled in advance or use corresponding lag-1 feature
+         Competitor Pricing              REVIEW               Current-day t feature; verify if planned/scheduled in advance or use corresponding lag-1 feature
+                Seasonality                PASS                                 Exogenous calendar features determined strictly by calendar date; zero leakage
+                       Year                PASS                                 Exogenous calendar features determined strictly by calendar date; zero leakage
+                      Month                PASS                                 Exogenous calendar features determined strictly by calendar date; zero leakage
+                 Month_Name                PASS                                 Exogenous calendar features determined strictly by calendar date; zero leakage
+                        Day                PASS                                 Exogenous calendar features determined strictly by calendar date; zero leakage
+                Day_of_Week                PASS                                 Exogenous calendar features determined strictly by calendar date; zero leakage
+                   Day_Name                PASS                                 Exogenous calendar features determined strictly by calendar date; zero leakage
+               Week_of_Year                PASS                                 Exogenous calendar features determined strictly by calendar date; zero leakage
+                    Quarter                PASS                                 Exogenous calendar features determined strictly by calendar date; zero leakage
+                 Is_Weekend                PASS                                 Exogenous calendar features determined strictly by calendar date; zero leakage
+           Units_Sold_Lag_1                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+           Units_Sold_Lag_7                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+          Units_Sold_Lag_14                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+          Units_Sold_Lag_30                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+  Units_Sold_Rolling_Mean_7                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+   Units_Sold_Rolling_Std_7                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+ Units_Sold_Rolling_Mean_14                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+  Units_Sold_Rolling_Std_14                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+ Units_Sold_Rolling_Mean_30                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+  Units_Sold_Rolling_Std_30                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+           Units_Sold_Lag_3                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+          Units_Sold_Lag_21                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+Units_Sold_Rolling_Median_7                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+         Units_Sold_Trend_7                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+                Demand_CV_7                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+               Demand_CV_14                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+               Demand_CV_30                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+      Demand_CV_Change_7_30                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+            Inventory_Lag_1                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+        Units_Ordered_Lag_1                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+Inventory_Demand_Coverage_7                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+       Order_Demand_Ratio_7                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+                Price_Lag_1                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+             Discount_Lag_1                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+ Competitor_Price_Gap_Lag_1                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+            Promotion_Lag_1                PASS                                      Strictly historical information shifted by at least 1 day prior to date t
+
+Leakage Audit Summary:
+  - Target column properly isolated: YES (Units Sold)
+  - Demand Forecast excluded from model feature matrix: YES
+  - Current-day operational outcomes identified for exclusion: Inventory Level, Units Ordered
+  - Historical engineered features verified strictly pre-prediction: 26 features PASS
+
+================================================================================
+9. REDUNDANCY & EXACT DUPLICATE COLUMN AUDIT
+================================================================================
+Exact Duplicate Column Pairs Found: 0
+  None. All 50 columns have distinct data values.
+
+Potentially Redundant Feature Groups (Deterministic / Mathematical Dependencies):
+  1. Month <-> Month_Name: Month_Name is the exact string literal representation of Month.
+  2. Day_of_Week <-> Day_Name: Day_Name is the exact string literal representation of Day_of_Week.
+  3. Demand_CV_Change_7_30 <-> (Demand_CV_7, Demand_CV_30): Exact linear dependency (CV_Change = CV_7 - CV_30).
+  4. Price <-> Competitor Pricing: Extremely high correlation (r = 0.9939).
+  5. Month <-> Week_of_Year <-> Quarter: Standard hierarchical calendar progression (r > 0.94).
+
+================================================================================
+10. FEATURE FAMILY AUDIT
+================================================================================
+
+A. Identifiers (2 columns):
+  - Store ID                       (dtype: str, nulls: 0)
+  - Product ID                     (dtype: str, nulls: 0)
+
+B. Date / Calendar (11 columns):
+  - Date                           (dtype: str, nulls: 0)
+  - Year                           (dtype: int64, nulls: 0)
+  - Month                          (dtype: int64, nulls: 0)
+  - Month_Name                     (dtype: str, nulls: 0)
+  - Day                            (dtype: int64, nulls: 0)
+  - Day_of_Week                    (dtype: int64, nulls: 0)
+  - Day_Name                       (dtype: str, nulls: 0)
+  - Week_of_Year                   (dtype: int64, nulls: 0)
+  - Quarter                        (dtype: int64, nulls: 0)
+  - Is_Weekend                     (dtype: int64, nulls: 0)
+  - Seasonality                    (dtype: str, nulls: 0)
+
+C. Raw Business Variables (11 columns):
+  - Category                       (dtype: str, nulls: 0)
+  - Region                         (dtype: str, nulls: 0)
+  - Inventory Level                (dtype: int64, nulls: 0)
+  - Units Sold                     (dtype: int64, nulls: 0)
+  - Units Ordered                  (dtype: int64, nulls: 0)
+  - Demand Forecast                (dtype: float64, nulls: 673)
+  - Price                          (dtype: float64, nulls: 0)
+  - Discount                       (dtype: int64, nulls: 0)
+  - Weather Condition              (dtype: str, nulls: 0)
+  - Holiday/Promotion              (dtype: int64, nulls: 0)
+  - Competitor Pricing             (dtype: float64, nulls: 0)
+
+D. Historical Demand Lags (6 columns):
+  - Units_Sold_Lag_1               (dtype: float64, nulls: 100)
+  - Units_Sold_Lag_3               (dtype: float64, nulls: 300)
+  - Units_Sold_Lag_7               (dtype: float64, nulls: 700)
+  - Units_Sold_Lag_14              (dtype: float64, nulls: 1,400)
+  - Units_Sold_Lag_21              (dtype: float64, nulls: 2,100)
+  - Units_Sold_Lag_30              (dtype: float64, nulls: 3,000)
+
+E. Demand Rolling Statistics (7 columns):
+  - Units_Sold_Rolling_Mean_7      (dtype: float64, nulls: 700)
+  - Units_Sold_Rolling_Std_7       (dtype: float64, nulls: 700)
+  - Units_Sold_Rolling_Mean_14     (dtype: float64, nulls: 1,400)
+  - Units_Sold_Rolling_Std_14      (dtype: float64, nulls: 1,400)
+  - Units_Sold_Rolling_Mean_30     (dtype: float64, nulls: 3,000)
+  - Units_Sold_Rolling_Std_30      (dtype: float64, nulls: 3,000)
+  - Units_Sold_Rolling_Median_7    (dtype: float64, nulls: 700)
+
+F. Demand Trend (1 columns):
+  - Units_Sold_Trend_7             (dtype: float64, nulls: 700)
+
+G. Demand Variability (4 columns):
+  - Demand_CV_7                    (dtype: float64, nulls: 700)
+  - Demand_CV_14                   (dtype: float64, nulls: 1,400)
+  - Demand_CV_30                   (dtype: float64, nulls: 3,000)
+  - Demand_CV_Change_7_30          (dtype: float64, nulls: 3,000)
+
+H. Inventory / Order Relationships (4 columns):
+  - Inventory_Lag_1                (dtype: float64, nulls: 100)
+  - Units_Ordered_Lag_1            (dtype: float64, nulls: 100)
+  - Inventory_Demand_Coverage_7    (dtype: float64, nulls: 700)
+  - Order_Demand_Ratio_7           (dtype: float64, nulls: 700)
+
+I. Pricing & Discount Context (2 columns):
+  - Price_Lag_1                    (dtype: float64, nulls: 100)
+  - Discount_Lag_1                 (dtype: float64, nulls: 100)
+
+J. Promotion Context (1 columns):
+  - Promotion_Lag_1                (dtype: float64, nulls: 100)
+
+K. Competitive Pricing Context (1 columns):
+  - Competitor_Price_Gap_Lag_1     (dtype: float64, nulls: 100)
+
+================================================================================
+11. CORRELATION WITH TARGET (Units Sold)
+================================================================================
+                        Feature Pearson r Spearman rho Abs Pearson r Non-Null Obs
+0               Demand Forecast    0.9969       0.9942        0.9969       72,427
+1               Inventory Level    0.5900       0.5683        0.5900       73,100
+2     Units_Sold_Rolling_Std_30    0.0104       0.0121        0.0104       70,100
+3             Units_Sold_Lag_30   -0.0064      -0.0094        0.0064       70,100
+4                  Demand_CV_30    0.0064       0.0064        0.0064       70,100
+5             Units_Sold_Lag_14   -0.0053      -0.0026        0.0053       71,700
+6    Competitor_Price_Gap_Lag_1    0.0049       0.0051        0.0049       73,000
+7                  Demand_CV_14    0.0048       0.0047        0.0048       71,700
+8    Units_Sold_Rolling_Mean_30    0.0047       0.0083        0.0047       70,100
+9          Order_Demand_Ratio_7    0.0042       0.0030        0.0042       72,400
+10            Units_Sold_Lag_21    0.0041       0.0020        0.0041       71,000
+11           Units_Sold_Trend_7   -0.0039      -0.0077        0.0039       72,400
+12              Promotion_Lag_1   -0.0038      -0.0028        0.0038       73,000
+13          Units_Ordered_Lag_1    0.0037       0.0043        0.0037       73,000
+14                          Day    0.0029       0.0060        0.0029       73,100
+15               Discount_Lag_1   -0.0029      -0.0038        0.0029       73,000
+16                         Year   -0.0028      -0.0029        0.0028       73,100
+17                     Discount    0.0026       0.0034        0.0026       73,100
+18    Units_Sold_Rolling_Std_14    0.0024       0.0053        0.0024       71,700
+19                   Is_Weekend   -0.0023      -0.0037        0.0023       73,100
+20        Demand_CV_Change_7_30   -0.0023      -0.0013        0.0023       70,100
+21             Units_Sold_Lag_3    0.0021       0.0001        0.0021       72,800
+22                 Week_of_Year    0.0019       0.0017        0.0019       73,100
+23             Units_Sold_Lag_7    0.0017       0.0023        0.0017       72,400
+24                      Quarter    0.0015       0.0016        0.0015       73,100
+25              Inventory_Lag_1    0.0014       0.0019        0.0014       73,000
+26                  Price_Lag_1   -0.0014      -0.0008        0.0014       73,000
+27           Competitor Pricing    0.0013       0.0001        0.0013       73,100
+28  Units_Sold_Rolling_Median_7   -0.0012      -0.0000        0.0012       72,400
+29                        Price    0.0011       0.0001        0.0011       73,100
+30                Units Ordered   -0.0009      -0.0008        0.0009       73,100
+31                  Day_of_Week    0.0009      -0.0005        0.0009       73,100
+32            Holiday/Promotion   -0.0004       0.0011        0.0004       73,100
+33                        Month    0.0003       0.0002        0.0003       73,100
+34     Units_Sold_Rolling_Std_7    0.0003       0.0039        0.0003       72,400
+35                  Demand_CV_7    0.0003       0.0017        0.0003       72,400
+36             Units_Sold_Lag_1   -0.0003       0.0006        0.0003       73,000
+37    Units_Sold_Rolling_Mean_7   -0.0002       0.0013        0.0002       72,400
+38  Inventory_Demand_Coverage_7    0.0002       0.0017        0.0002       72,400
+39   Units_Sold_Rolling_Mean_14   -0.0001       0.0017        0.0001       71,700
+
+Key Observations on Target Correlation:
+  1. Demand Forecast exhibits extreme correlation (r = 0.9969, rho = 0.9942), confirming target contamination.
+  2. Inventory Level exhibits strong correlation (r = 0.5900, rho = 0.5683), confirming end-of-day stock leakage.
+  3. Strictly historical lag/rolling features show low linear correlation with single-day target,
+     which is normal for daily retail demand before capturing non-linear store/product entity interactions.
+
+================================================================================
+12. INTER-FEATURE CORRELATION AUDIT
+================================================================================
+Candidate numeric correlation matrix saved to:
+  C:\SIM&DFS\reports\final_feature_correlation_matrix.csv
+
+Feature Pairs with |r| >= 0.95:
+  - Price                     <-> Competitor Pricing        : r = 0.9939
+    Explanation: Direct raw price and competitor pricing move together in competitive retail.
+  - Month                     <-> Week_of_Year              : r = 0.9741
+    Explanation: Expected calendar progression (Week of Year tracks Month).
+  - Month                     <-> Quarter                   : r = 0.9714
+    Explanation: Expected calendar hierarchy (Quarter = ceil(Month / 3)).
+
+Feature Pairs with 0.90 <= |r| < 0.95:
+  - Week_of_Year              <-> Quarter                   : r = 0.9493
+    Explanation: Standard calendar hierarchy (Week of Year tracks Quarter).
+
+================================================================================
+13. MULTICOLLINEARITY WARNING (VIF ANALYSIS)
+================================================================================
+Complete observations across 39 numeric candidate features: 70,100 of 73,100
+
+Diagnostic Mathematical Note:
+  Demand_CV_Change_7_30 was constructed in Step 6 as (Demand_CV_7 - Demand_CV_30).
+  This creates an exact linear relationship among the three features:
+    Demand_CV_Change_7_30 - Demand_CV_7 + Demand_CV_30 = 0.0
+  Consequently, the full correlation matrix including Demand_CV_Change_7_30 is singular (rank-deficient).
+  In linear regression models without regularization, this causes infinite variance inflation.
+  For tree-based models (LightGBM, XGBoost, CatBoost), collinearity does not cause matrix failure,
+  but one of the three features is redundant.
+
+Variance Inflation Factors (computed excluding linearly dependent Demand_CV_Change_7_30):
+                    Feature   VIF                      Multicollinearity Diagnosis
+                      Price 82.33 HIGH (>= 10) - Expected calendar/rolling cluster
+         Competitor Pricing 82.33 HIGH (>= 10) - Expected calendar/rolling cluster
+                      Month 68.74 HIGH (>= 10) - Expected calendar/rolling cluster
+ Units_Sold_Rolling_Mean_30 68.55 HIGH (>= 10) - Expected calendar/rolling cluster
+  Units_Sold_Rolling_Std_30 58.24 HIGH (>= 10) - Expected calendar/rolling cluster
+               Week_of_Year 55.16 HIGH (>= 10) - Expected calendar/rolling cluster
+               Demand_CV_30 45.03 HIGH (>= 10) - Expected calendar/rolling cluster
+ Units_Sold_Rolling_Mean_14 37.18 HIGH (>= 10) - Expected calendar/rolling cluster
+  Units_Sold_Rolling_Std_14 34.35 HIGH (>= 10) - Expected calendar/rolling cluster
+               Demand_CV_14 25.44 HIGH (>= 10) - Expected calendar/rolling cluster
+  Units_Sold_Rolling_Mean_7 22.74 HIGH (>= 10) - Expected calendar/rolling cluster
+   Units_Sold_Rolling_Std_7 19.25 HIGH (>= 10) - Expected calendar/rolling cluster
+                    Quarter 17.08 HIGH (>= 10) - Expected calendar/rolling cluster
+                Demand_CV_7 12.57 HIGH (>= 10) - Expected calendar/rolling cluster
+Inventory_Demand_Coverage_7  9.13                                  MODERATE (5-10)
+            Inventory_Lag_1  9.09                                  MODERATE (5-10)
+       Order_Demand_Ratio_7  8.33                                  MODERATE (5-10)
+        Units_Ordered_Lag_1  5.79                                  MODERATE (5-10)
+Units_Sold_Rolling_Median_7  4.44                                        LOW (< 5)
+         Units_Sold_Trend_7  3.18                                        LOW (< 5)
+           Units_Sold_Lag_1  3.07                                        LOW (< 5)
+                Day_of_Week  2.68                                        LOW (< 5)
+                 Is_Weekend  2.67                                        LOW (< 5)
+           Units_Sold_Lag_7  2.11                                        LOW (< 5)
+           Units_Sold_Lag_3  1.43                                        LOW (< 5)
+                        Day  1.34                                        LOW (< 5)
+          Units_Sold_Lag_14  1.17                                        LOW (< 5)
+          Units_Sold_Lag_30  1.07                                        LOW (< 5)
+          Units_Sold_Lag_21  1.07                                        LOW (< 5)
+                       Year  1.02                                        LOW (< 5)
+            Inventory Level  1.00                                        LOW (< 5)
+          Holiday/Promotion  1.00                                        LOW (< 5)
+              Units Ordered  1.00                                        LOW (< 5)
+            Promotion_Lag_1  1.00                                        LOW (< 5)
+                Price_Lag_1  1.00                                        LOW (< 5)
+ Competitor_Price_Gap_Lag_1  1.00                                        LOW (< 5)
+                   Discount  1.00                                        LOW (< 5)
+             Discount_Lag_1  1.00                                        LOW (< 5)
+
+================================================================================
+14. FEATURE-BY-FEATURE DECISION TABLE (ALL 50 COLUMNS)
+================================================================================
+                     Column                           Role           Leakage Status Missingness Status Constant Status Near-Constant Status                Redundancy Status Target Correlation         Recommendation                                                                                                      Reason
+                       Date         Date Index / Split Key                     PASS          0 (0.00%)    Non-constant                   No                   Temporal index                  -          KEEP — REVIEW       Primary chronological split index; retain for time-series validation, exclude from raw feature vector
+                   Store ID Engineered / Exogenous Feature                     PASS          0 (0.00%)    Non-constant                   No               Unique information                  -                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+                 Product ID Engineered / Exogenous Feature                     PASS          0 (0.00%)    Non-constant                   No               Unique information                  -                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+                   Category Engineered / Exogenous Feature                     PASS          0 (0.00%)    Non-constant                   No               Unique information                  -                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+                     Region Engineered / Exogenous Feature                     PASS          0 (0.00%)    Non-constant                   No               Unique information                  -                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+            Inventory Level          Raw Business Variable FAIL (Current-Day Stock)          0 (0.00%)    Non-constant                   No         End-of-day stock outcome             0.5900 EXCLUDE — LEAKAGE RISK     Current-day stock depleted by daily sales (r = 0.590); unavailable prior to date t; use Inventory_Lag_1
+                 Units Sold                Target Variable            FAIL (Target)          0 (0.00%)    Non-constant                   No                     Ground Truth             1.0000 EXCLUDE — LEAKAGE RISK                                Target variable (Units Sold); circular leakage if included in feature matrix
+              Units Ordered          Raw Business Variable FAIL (Current-Day Order)          0 (0.00%)    Non-constant                   No              Operational outcome            -0.0009 EXCLUDE — LEAKAGE RISK Current-day order quantity placed during/after date t; unavailable prior to date t; use Units_Ordered_Lag_1
+            Demand Forecast       External/Legacy Forecast           FAIL (Leakage)        673 (0.92%)    Non-constant                   No            Collinear with Target             0.9969 EXCLUDE — LEAKAGE RISK                               High correlation with target (r = 0.997); encodes target directly; prohibited
+                      Price          Raw Business Variable     REVIEW (Current-Day)          0 (0.00%)    Non-constant                   No    Collinear with Lag/Competitor             0.0011          KEEP — REVIEW                     Current-day feature at date t; verify if planned in advance or replace with Price_Lag_1
+                   Discount          Raw Business Variable     REVIEW (Current-Day)          0 (0.00%)    Non-constant                   No    Collinear with Lag/Competitor             0.0026          KEEP — REVIEW                  Current-day feature at date t; verify if planned in advance or replace with Discount_Lag_1
+          Weather Condition          Raw Business Variable     REVIEW (Current-Day)          0 (0.00%)    Non-constant                   No    Collinear with Lag/Competitor                  -          KEEP — REVIEW         Current-day feature at date t; verify if planned in advance or replace with Weather Condition_Lag_1
+          Holiday/Promotion          Raw Business Variable     REVIEW (Current-Day)          0 (0.00%)    Non-constant                   No    Collinear with Lag/Competitor            -0.0004          KEEP — REVIEW         Current-day feature at date t; verify if planned in advance or replace with Holiday/Promotion_Lag_1
+         Competitor Pricing          Raw Business Variable     REVIEW (Current-Day)          0 (0.00%)    Non-constant                   No    Collinear with Lag/Competitor             0.0013          KEEP — REVIEW        Current-day feature at date t; verify if planned in advance or replace with Competitor Pricing_Lag_1
+                Seasonality Engineered / Exogenous Feature                     PASS          0 (0.00%)    Non-constant                   No               Unique information                  -                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+                       Year Engineered / Exogenous Feature                     PASS          0 (0.00%)    Non-constant                   No               Unique information            -0.0028                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+                      Month Engineered / Exogenous Feature                     PASS          0 (0.00%)    Non-constant                   No               Unique information             0.0003                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+                 Month_Name               Calendar Feature                     PASS          0 (0.00%)    Non-constant                   No               Duplicate of Month                  -     REVIEW — REDUNDANT                                 String literal duplicate of integer Month; redundant for numerical modeling
+                        Day Engineered / Exogenous Feature                     PASS          0 (0.00%)    Non-constant                   No               Unique information             0.0029                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+                Day_of_Week Engineered / Exogenous Feature                     PASS          0 (0.00%)    Non-constant                   No               Unique information             0.0009                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+                   Day_Name               Calendar Feature                     PASS          0 (0.00%)    Non-constant                   No         Duplicate of Day_of_Week                  -     REVIEW — REDUNDANT                           String literal duplicate of integer Day_of_Week; redundant for numerical modeling
+               Week_of_Year               Calendar Feature                     PASS          0 (0.00%)    Non-constant                   No Correlated with Month (r > 0.94)             0.0019          KEEP — REVIEW        High correlation with Month; acceptable in tree models but monitor for collinearity in linear models
+                    Quarter               Calendar Feature                     PASS          0 (0.00%)    Non-constant                   No Correlated with Month (r > 0.94)             0.0015          KEEP — REVIEW        High correlation with Month; acceptable in tree models but monitor for collinearity in linear models
+                 Is_Weekend Engineered / Exogenous Feature                     PASS          0 (0.00%)    Non-constant                   No               Unique information            -0.0023                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+           Units_Sold_Lag_1 Engineered / Exogenous Feature                     PASS        100 (0.14%)    Non-constant                   No               Unique information            -0.0003                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+           Units_Sold_Lag_7 Engineered / Exogenous Feature                     PASS        700 (0.96%)    Non-constant                   No               Unique information             0.0017                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+          Units_Sold_Lag_14 Engineered / Exogenous Feature                     PASS      1,400 (1.92%)    Non-constant                   No               Unique information            -0.0053                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+          Units_Sold_Lag_30 Engineered / Exogenous Feature                     PASS      3,000 (4.10%)    Non-constant                   No               Unique information            -0.0064                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+  Units_Sold_Rolling_Mean_7 Engineered / Exogenous Feature                     PASS        700 (0.96%)    Non-constant                   No               Unique information            -0.0002                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+   Units_Sold_Rolling_Std_7 Engineered / Exogenous Feature                     PASS        700 (0.96%)    Non-constant                   No               Unique information             0.0003                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+ Units_Sold_Rolling_Mean_14 Engineered / Exogenous Feature                     PASS      1,400 (1.92%)    Non-constant                   No               Unique information            -0.0001                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+  Units_Sold_Rolling_Std_14 Engineered / Exogenous Feature                     PASS      1,400 (1.92%)    Non-constant                   No               Unique information             0.0024                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+ Units_Sold_Rolling_Mean_30 Engineered / Exogenous Feature                     PASS      3,000 (4.10%)    Non-constant                   No               Unique information             0.0047                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+  Units_Sold_Rolling_Std_30 Engineered / Exogenous Feature                     PASS      3,000 (4.10%)    Non-constant                   No               Unique information             0.0104                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+           Units_Sold_Lag_3 Engineered / Exogenous Feature                     PASS        300 (0.41%)    Non-constant                   No               Unique information             0.0021                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+          Units_Sold_Lag_21 Engineered / Exogenous Feature                     PASS      2,100 (2.87%)    Non-constant                   No               Unique information             0.0041                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+Units_Sold_Rolling_Median_7 Engineered / Exogenous Feature                     PASS        700 (0.96%)    Non-constant                   No               Unique information            -0.0012                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+         Units_Sold_Trend_7 Engineered / Exogenous Feature                     PASS        700 (0.96%)    Non-constant                   No               Unique information            -0.0039                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+                Demand_CV_7 Engineered / Exogenous Feature                     PASS        700 (0.96%)    Non-constant                   No               Unique information             0.0003                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+               Demand_CV_14 Engineered / Exogenous Feature                     PASS      1,400 (1.92%)    Non-constant                   No               Unique information             0.0048                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+               Demand_CV_30 Engineered / Exogenous Feature                     PASS      3,000 (4.10%)    Non-constant                   No               Unique information             0.0064                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+      Demand_CV_Change_7_30             Demand Variability                     PASS      3,000 (4.10%)    Non-constant                   No               Exact Linear Combo            -0.0023     REVIEW — REDUNDANT        Exact mathematical difference (CV_7 - CV_30); introduces singular multicollinearity in linear models
+            Inventory_Lag_1 Engineered / Exogenous Feature                     PASS        100 (0.14%)    Non-constant                   No               Unique information             0.0014                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+        Units_Ordered_Lag_1 Engineered / Exogenous Feature                     PASS        100 (0.14%)    Non-constant                   No               Unique information             0.0037                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+Inventory_Demand_Coverage_7 Engineered / Exogenous Feature                     PASS        700 (0.96%)    Non-constant                   No               Unique information             0.0002                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+       Order_Demand_Ratio_7 Engineered / Exogenous Feature                     PASS        700 (0.96%)    Non-constant                   No               Unique information             0.0042                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+                Price_Lag_1 Engineered / Exogenous Feature                     PASS        100 (0.14%)    Non-constant                   No               Unique information            -0.0014                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+             Discount_Lag_1 Engineered / Exogenous Feature                     PASS        100 (0.14%)    Non-constant                   No               Unique information            -0.0029                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+ Competitor_Price_Gap_Lag_1 Engineered / Exogenous Feature                     PASS        100 (0.14%)    Non-constant                   No               Unique information             0.0049                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+            Promotion_Lag_1 Engineered / Exogenous Feature                     PASS        100 (0.14%)    Non-constant                   No               Unique information            -0.0038                   KEEP          Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+================================================================================
+15. IMPORTANT FEATURE-SPECIFIC TECHNICAL REVIEW (20 HIGHLIGHTED FEATURES)
+================================================================================
+
+--- Units Sold ---
+  Dtype: int64 | Nulls: 0 | Min: 0.0000 | Max: 499.0000 | Mean: 136.4649
+  Recommendation : EXCLUDE — LEAKAGE RISK
+  Technical Role : Target Variable
+  Assessment     : Target variable (Units Sold); circular leakage if included in feature matrix
+
+--- Demand Forecast ---
+  Dtype: float64 | Nulls: 673 | Min: 0.0100 | Max: 518.5500 | Mean: 142.8438
+  Recommendation : EXCLUDE — LEAKAGE RISK
+  Technical Role : External/Legacy Forecast
+  Assessment     : High correlation with target (r = 0.997); encodes target directly; prohibited
+
+--- Units_Sold_Lag_3 ---
+  Dtype: float64 | Nulls: 300 | Min: 0.0000 | Max: 499.0000 | Mean: 136.5106
+  Recommendation : KEEP
+  Technical Role : Engineered / Exogenous Feature
+  Assessment     : Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+--- Units_Sold_Lag_21 ---
+  Dtype: float64 | Nulls: 2,100 | Min: 0.0000 | Max: 499.0000 | Mean: 136.4378
+  Recommendation : KEEP
+  Technical Role : Engineered / Exogenous Feature
+  Assessment     : Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+--- Units_Sold_Rolling_Mean_7 ---
+  Dtype: float64 | Nulls: 700 | Min: 16.2857 | Max: 327.8571 | Mean: 136.4848
+  Recommendation : KEEP
+  Technical Role : Engineered / Exogenous Feature
+  Assessment     : Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+--- Units_Sold_Rolling_Std_7 ---
+  Dtype: float64 | Nulls: 700 | Min: 7.0812 | Max: 214.5681 | Mean: 104.0812
+  Recommendation : KEEP
+  Technical Role : Engineered / Exogenous Feature
+  Assessment     : Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+--- Units_Sold_Rolling_Median_7 ---
+  Dtype: float64 | Nulls: 700 | Min: 5.0000 | Max: 395.0000 | Mean: 115.8969
+  Recommendation : KEEP
+  Technical Role : Engineered / Exogenous Feature
+  Assessment     : Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+--- Units_Sold_Trend_7 ---
+  Dtype: float64 | Nulls: 700 | Min: -80.2857 | Max: 82.4643 | Mean: 0.0060
+  Recommendation : KEEP
+  Technical Role : Engineered / Exogenous Feature
+  Assessment     : Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+--- Demand_CV_7 ---
+  Dtype: float64 | Nulls: 700 | Min: 0.0966 | Max: 2.0632 | Mean: 0.7850
+  Recommendation : KEEP
+  Technical Role : Engineered / Exogenous Feature
+  Assessment     : Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+--- Demand_CV_14 ---
+  Dtype: float64 | Nulls: 1,400 | Min: 0.2658 | Max: 1.7428 | Mean: 0.7960
+  Recommendation : KEEP
+  Technical Role : Engineered / Exogenous Feature
+  Assessment     : Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+--- Demand_CV_30 ---
+  Dtype: float64 | Nulls: 3,000 | Min: 0.4669 | Max: 1.2692 | Mean: 0.7987
+  Recommendation : KEEP
+  Technical Role : Engineered / Exogenous Feature
+  Assessment     : Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+--- Demand_CV_Change_7_30 ---
+  Dtype: float64 | Nulls: 3,000 | Min: -0.7859 | Max: 1.0958 | Mean: -0.0130
+  Recommendation : REVIEW — REDUNDANT
+  Technical Role : Demand Variability
+  Assessment     : Exact mathematical difference (CV_7 - CV_30); introduces singular multicollinearity in linear models
+
+--- Inventory_Lag_1 ---
+  Dtype: float64 | Nulls: 100 | Min: 50.0000 | Max: 500.0000 | Mean: 274.4832
+  Recommendation : KEEP
+  Technical Role : Engineered / Exogenous Feature
+  Assessment     : Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+--- Units_Ordered_Lag_1 ---
+  Dtype: float64 | Nulls: 100 | Min: 20.0000 | Max: 200.0000 | Mean: 110.0013
+  Recommendation : KEEP
+  Technical Role : Engineered / Exogenous Feature
+  Assessment     : Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+--- Inventory_Demand_Coverage_7 ---
+  Dtype: float64 | Nulls: 700 | Min: 0.2014 | Max: 17.7917 | Mean: 2.1545
+  Recommendation : KEEP
+  Technical Role : Engineered / Exogenous Feature
+  Assessment     : Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+--- Order_Demand_Ratio_7 ---
+  Dtype: float64 | Nulls: 700 | Min: 0.0653 | Max: 8.1667 | Mean: 0.8938
+  Recommendation : KEEP
+  Technical Role : Engineered / Exogenous Feature
+  Assessment     : Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+--- Price_Lag_1 ---
+  Dtype: float64 | Nulls: 100 | Min: 10.0000 | Max: 100.0000 | Mean: 55.1377
+  Recommendation : KEEP
+  Technical Role : Engineered / Exogenous Feature
+  Assessment     : Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+--- Discount_Lag_1 ---
+  Dtype: float64 | Nulls: 100 | Min: 0.0000 | Max: 20.0000 | Mean: 10.0099
+  Recommendation : KEEP
+  Technical Role : Engineered / Exogenous Feature
+  Assessment     : Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+--- Competitor_Price_Gap_Lag_1 ---
+  Dtype: float64 | Nulls: 100 | Min: -5.0000 | Max: 5.0000 | Mean: -0.0109
+  Recommendation : KEEP
+  Technical Role : Engineered / Exogenous Feature
+  Assessment     : Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+--- Promotion_Lag_1 ---
+  Dtype: float64 | Nulls: 100 | Min: 0.0000 | Max: 1.0000 | Mean: 0.4973
+  Recommendation : KEEP
+  Technical Role : Engineered / Exogenous Feature
+  Assessment     : Leakage-safe, strictly historical or static categorical feature with valid predictive availability
+
+================================================================================
+16. FINAL 50-FEATURE AUDIT METRICS & SUMMARY
+================================================================================
+Total Columns                               : 50
+Identifier / Date Columns                   : 3 (Store ID, Product ID, Date)
+Target Columns                              : 1 (Units Sold)
+Candidate Model Features Before Exclusions  : 46
+
+Breakdown of Candidate Model Features (46 total):
+  Recommended KEEP                          : 33
+  Recommended KEEP — REVIEW                 : 7
+  Recommended EXCLUDE — LEAKAGE RISK        : 3
+  Recommended EXCLUDE — CONSTANT            : 0
+  Recommended REVIEW — REDUNDANT            : 3
+
+Breakdown Across All 50 Columns in Dataset:
+  KEEP                     : 35
+  KEEP — REVIEW            : 8
+  EXCLUDE — LEAKAGE RISK   : 4
+  EXCLUDE — CONSTANT       : 0
+  REVIEW — REDUNDANT       : 3
+
+================================================================================
+RECOMMENDED MODEL-READY FEATURE SET
+================================================================================
+
+1. CORE RECOMMENDED FEATURES (KEEP) - 33 Features:
+   1. Category
+   2. Region
+   3. Seasonality
+   4. Year
+   5. Month
+   6. Day
+   7. Day_of_Week
+   8. Is_Weekend
+   9. Units_Sold_Lag_1
+  10. Units_Sold_Lag_7
+  11. Units_Sold_Lag_14
+  12. Units_Sold_Lag_30
+  13. Units_Sold_Rolling_Mean_7
+  14. Units_Sold_Rolling_Std_7
+  15. Units_Sold_Rolling_Mean_14
+  16. Units_Sold_Rolling_Std_14
+  17. Units_Sold_Rolling_Mean_30
+  18. Units_Sold_Rolling_Std_30
+  19. Units_Sold_Lag_3
+  20. Units_Sold_Lag_21
+  21. Units_Sold_Rolling_Median_7
+  22. Units_Sold_Trend_7
+  23. Demand_CV_7
+  24. Demand_CV_14
+  25. Demand_CV_30
+  26. Inventory_Lag_1
+  27. Units_Ordered_Lag_1
+  28. Inventory_Demand_Coverage_7
+  29. Order_Demand_Ratio_7
+  30. Price_Lag_1
+  31. Discount_Lag_1
+  32. Competitor_Price_Gap_Lag_1
+  33. Promotion_Lag_1
+
+2. FEATURES REQUIRING MONITORING / REVIEW (KEEP — REVIEW) - 7 Features:
+   1. Price
+   2. Discount
+   3. Weather Condition
+   4. Holiday/Promotion
+   5. Competitor Pricing
+   6. Week_of_Year
+   7. Quarter
+
+3. EXCLUDED FEATURES (DO NOT USE IN MODEL INPUT MATRIX) - 4 Columns:
+   1. Inventory Level
+   2. Units Sold
+   3. Units Ordered
+   4. Demand Forecast
+
+4. REDUNDANT FEATURES RECOMMENDED FOR PRUNING (REVIEW — REDUNDANT) - 3 Columns:
+   1. Month_Name
+   2. Day_Name
+   3. Demand_CV_Change_7_30
+
+================================================================================
+CRITICAL FINAL VERIFICATION CHECKLIST
+================================================================================
+  [YES] 73,100 rows verified
+  [YES] 50 columns verified
+  [YES] No duplicate Store+Product+Date
+  [YES] No unexpected missing values (all 26 structural NaN features match exact counts)
+  [YES] No constant columns (or clearly identified: 0 found)
+  [YES] Near-constant columns identified (0 found >= 95%)
+  [YES] No infinite values verified across all numeric columns
+  [YES] Leakage audit completed (Target and Demand Forecast isolated)
+  [YES] Demand Forecast explicitly marked EXCLUDED — LEAKAGE RISK
+  [YES] Exact duplicates checked (0 exact duplicate pairs)
+  [YES] Mathematical redundancy reviewed (CV_Change, Month_Name, Day_Name)
+  [YES] Pearson correlation completed for all numeric candidate features
+  [YES] Spearman correlation completed via rank correlation for all numeric features
+  [YES] High inter-feature correlations identified (|r| >= 0.95 and >= 0.90)
+  [YES] VIF reviewed and rank deficiency diagnosed
+  [YES] No dataset modifications performed (read-only audit)
+  [YES] No model training performed
+  [YES] No predictions generated

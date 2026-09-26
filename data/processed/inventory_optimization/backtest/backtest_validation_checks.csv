@@ -1,0 +1,7 @@
+Validation_Code,Description,Status,Evidence
+VAL_01,"Horizon alignment (LT2->2D, LT4->4D, LT7->7D)",PASS,Each lead-time scenario evaluated strictly against its matching L-day future window
+VAL_02,Monotonicity with respect to Lead Time (2 -> 4 -> 7),PASS,"Increasing Lead Time never decreases LTD, Safety_Stock, or Reorder_Point"
+VAL_03,Monotonicity with respect to Service Level (90% -> 95% -> 99%),PASS,Increasing Service Level never decreases Safety_Stock or Reorder_Point
+VAL_04,Policy Decision Population vs Backtest Outcome Population preserved,PASS,"65,700 active decisions; 65,600 (2D), 65,400 (4D), 65,100 (7D) complete future outcomes"
+VAL_05,Source dataset (inventory_optimization_dataset.csv) unmodified,PASS,SHA-256 unchanged (5b99992ce112d9dc...)
+VAL_06,All 13 Leakage Audit checks PASS,PASS,13 / 13 PASS

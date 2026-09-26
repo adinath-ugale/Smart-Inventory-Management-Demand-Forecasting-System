@@ -1,0 +1,349 @@
+================================================================================
+STEP 12 — CONTROLLED MODEL IMPROVEMENT REPORT
+================================================================================
+
+================================================================================
+1. OBJECTIVE & ENVIRONMENT
+================================================================================
+Python Version       : 3.14.7
+Pandas Version       : 3.0.6
+NumPy Version        : 2.5.3
+Scikit-Learn Version : 1.9.1
+Step 12 Objective    : Conduct controlled, leakage-safe validation experiments in:
+                       (A) Entity-Aware Historical Features (Store ID x Product ID expanding statistics)
+                       (B) Controlled Tree Regularization (constraining tree depth, leaves, L2 penalty)
+                       (C) Alternative Loss Objectives (L2 Squared Error vs. L1 Absolute Error vs. Poisson)
+Strict Isolation     : TRAIN (58,500 rows) + VALIDATION (7,300 rows) ONLY. TEST (7,300 rows) is UNTOUCHED.
+
+================================================================================
+2. BASELINE REFERENCE (STEP 10 BENCHMARKS ON VALIDATION)
+================================================================================
+Reference Model      : Step 10 Mean Baseline (Train Mean = 136.6098)
+Validation MAE       : 89.0898
+Validation RMSE      : 108.6944
+Validation WAPE      : 66.1016%
+Validation R²        : -0.0003
+Actual Validation Mean / Median / STD : 134.7771 / 104.0000 / 108.6864
+
+================================================================================
+3. ENTITY-AWARE FEATURE DEFINITIONS (STEP 12A)
+================================================================================
+Entity Grouping Key : Store ID + Product ID (Sorted strictly by Store ID, Product ID, Date)
+  1. Store_Product_Expanding_Mean_Lagged : Expanding mean of prior Units Sold (Units Sold -> shift(1) -> expanding().mean())
+  2. Store_Product_Expanding_Std_Lagged  : Expanding sample std of prior Units Sold (Units Sold -> shift(1) -> expanding(min_periods=2).std(ddof=1))
+  3. Store_Product_Lag1_vs_Expanding_Mean: Ratio Units_Sold_Lag_1 / Store_Product_Expanding_Mean_Lagged (NaN if denominator == 0 or NaN)
+
+================================================================================
+4. ENTITY FEATURE LEAKAGE VALIDATION
+================================================================================
+Number of Store x Product Groups               : 100 (Expected: 100)
+Chronological Ordering & Grouping Verified     : PASS
+Current-Day (t) Target Included in Features?   : NO (0 rows)
+Future (> t) Target Included in Features?      : NO (0 rows)
+Cross-Entity Contamination?                    : NO (0 rows)
+Minimum Historical Observations (Overall)      : 0 (at 2022-01-01; produces structural NaN)
+Minimum Historical Obs for Non-Null Mean / Std : 1 / 2
+Maximum Historical Observations in TRAIN       : 584 (at 2023-08-08)
+Historical Observations Range in VALIDATION    : 585 to 657 (2023-08-09 to 2023-10-20)
+Infinite Values Created                        : 0
+
+Entity Feature Summary & Train Target Correlations:
+Feature                                 Tr_NaNs Val_NaNs   Inf   Tr_Mean    Tr_Std   Pearson_r  Spearman_r
+----------------------------------------------------------------------------------------------------------
+Store_Product_Expanding_Mean_Lagged         100        0     0  136.7314   12.4807   +0.008154   +0.007575
+Store_Product_Expanding_Std_Lagged          200        0     0  108.3386    8.7048   +0.001878   +0.004510
+Store_Product_Lag1_vs_Expanding_Mean        101        0     0    0.9994    0.7949   +0.000622   +0.002686
+
+================================================================================
+5. EXPERIMENT E0 — EXISTING FEATURES (LOCKED 33 FEATURES)
+================================================================================
+Experiment_ID  Feature_Set                      Model                              MAE      RMSE    WAPE%        R²  Pred_Mean  Pred_Std Std_Ratio      Corr     Bias
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+REF-MEAN       None (Train Target Mean)         Mean Baseline                  89.0898  108.6944  66.1016   -0.0003   136.6098    0.0000    0.0000  +0.00000  +1.8327
+E0-RIDGE       E0 (Locked 33)                   Ridge Regression               89.0954  108.7108  66.1057   -0.0006   136.5474    3.1077    0.0286  +0.00867  +1.7703
+E0-HGB-R0      E0 (Locked 33)                   HistGradientBoostingRegressor   89.1354  108.7366  66.1354   -0.0011   136.8559    3.3280    0.0306  +0.00394  +2.0787
+
+================================================================================
+6. EXPERIMENT E1 — ENTITY-AWARE FEATURES (LOCKED 33 + 3 ENTITY FEATURES = 36)
+================================================================================
+Experiment_ID  Feature_Set                      Model                              MAE      RMSE    WAPE%        R²  Pred_Mean  Pred_Std Std_Ratio      Corr     Bias
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+E1-RIDGE       E1 (Locked 33 + 3 Entity = 36)   Ridge Regression               89.1114  108.7100  66.1176   -0.0006   136.6301    3.1234    0.0287  +0.00946  +1.8529
+E1-HGB-R0      E1 (Locked 33 + 3 Entity = 36)   HistGradientBoostingRegressor   89.1107  108.7174  66.1171   -0.0007   136.7094    3.2942    0.0303  +0.00869  +1.9323
+
+Direct Comparison (E1 minus E0):
+  Ridge Regression (E1 - E0):
+    dMAE       = +0.016062 (89.1114 vs 89.0954)
+    dRMSE      = -0.000770 (108.7100 vs 108.7108)
+    dWAPE (pp) = +0.011918 (66.1176% vs 66.1057%)
+    dR²        = +0.000014 (-0.0006 vs -0.0006)
+    dPred_Std  = +0.015703 (3.1234 vs 3.1077)
+    dStd_Ratio = +0.000144 (0.0287 vs 0.0286)
+    dCorr      = +0.000788 (+0.00946 vs +0.00867)
+  HistGradientBoosting (E1 - E0):
+    dMAE       = -0.024653 (89.1107 vs 89.1354)
+    dRMSE      = -0.019217 (108.7174 vs 108.7366)
+    dWAPE (pp) = -0.018292 (66.1171% vs 66.1354%)
+    dR²        = +0.000354 (-0.0007 vs -0.0011)
+    dPred_Std  = -0.033880 (3.2942 vs 3.3280)
+    dStd_Ratio = -0.000312 (0.0303 vs 0.0306)
+    dCorr      = +0.004743 (+0.00869 vs +0.00394)
+
+================================================================================
+7. TREE REGULARIZATION EXPERIMENTS (STEP 12C)
+================================================================================
+Experiment_ID  Regularization_Config                                  Iters       MAE      RMSE    WAPE%        R²  Pred_Std Std_Ratio      Corr     Bias
+------------------------------------------------------------------------------------------------------------------------------------------------------
+E1-HGB-R0      R0 Baseline (lr=0.1, leaves=31, min_leaf=20, l2=0.0)      11   89.1107  108.7174  66.1171   -0.0007    3.2942    0.0303  +0.00869  +1.9323
+HGB-R1         R1 Moderate (lr=0.05, leaves=15, min_leaf=30, l2=1.0)     10   89.0690  108.6745  66.0862    0.0001    1.5887    0.0146  +0.01951  +1.8051
+HGB-R2         R2 Stronger (lr=0.05, leaves=15, min_leaf=60, l2=5.0)     10   89.0749  108.6769  66.0905    0.0000    1.4599    0.0134  +0.01807  +1.7759
+RF-R1-REG      Depth-Constrained RF (max_depth=6, min_samples_leaf=50)   200   89.0703  108.6844  66.0871   -0.0001    1.9761    0.0182  +0.01313  +1.7140
+
+================================================================================
+8. ALTERNATIVE OBJECTIVE EXPERIMENTS (STEP 12D)
+================================================================================
+Experiment_ID      Objective            Feature_Set                    Iters       MAE      RMSE    WAPE%        R²  Pred_Mean  Pred_Std Std_Ratio     Bias
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+REF-MEAN           squared_error (L2)   None (Train Target Mean)           1   89.0898  108.6944  66.1016   -0.0003   136.6098    0.0000    0.0000  +1.8327
+E1-HGB-R0          squared_error (L2)   E1 (Locked 33 + 3 Entity = 36)    11   89.1107  108.7174  66.1171   -0.0007   136.7094    3.2942    0.0303  +1.9323
+HGB-R1             squared_error (L2)   E1 (Locked 33 + 3 Entity = 36)    10   89.0690  108.6745  66.0862    0.0001   136.5822    1.5887    0.0146  +1.8051
+HGB-R2             squared_error (L2)   E1 (Locked 33 + 3 Entity = 36)    10   89.0749  108.6769  66.0905    0.0000   136.5530    1.4599    0.0134  +1.7759
+HGB-L1-E0-R0       absolute_error (L1)  E0 (Locked 33)                    10   86.0587  111.9538  63.8526   -0.0612   108.1104    3.1793    0.0293 -26.6667
+HGB-L1-E1-R0       absolute_error (L1)  E1 (Locked 33 + 3 Entity = 36)    10   86.0801  111.9993  63.8685   -0.0620   108.0318    3.1617    0.0291 -26.7453
+HGB-L1-E1-R1       absolute_error (L1)  E1 (Locked 33 + 3 Entity = 36)    24   86.0259  111.9580  63.8283   -0.0613   107.9477    2.0814    0.0192 -26.8294
+HGB-L1-E1-R2       absolute_error (L1)  E1 (Locked 33 + 3 Entity = 36)    10   86.0236  111.9542  63.8265   -0.0612   107.9796    1.3542    0.0125 -26.7975
+HGB-POISSON-E1-R1  poisson              E1 (Locked 33 + 3 Entity = 36)    10   89.0781  108.6748  66.0929    0.0001   136.6201    1.4130    0.0130  +1.8430
+HGB-POISSON-E1-R2  poisson              E1 (Locked 33 + 3 Entity = 36)    10   89.0905  108.6772  66.1021    0.0000   136.6303    1.5137    0.0139  +1.8531
+
+================================================================================
+9. VALIDATION METRIC COMPARISON (MASTER TABLE)
+================================================================================
+Experiment_ID      Model                    Objective               MAE     dMAE     RMSE    WAPE%    dWAPE       R²  Pred_Mean  Pred_Std Std_Ratio     Bias
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+REF-MEAN           Mean Baseline            squared_error (L2)  89.0898  +0.0000 108.6944  66.1016  +0.0000  -0.0003   136.6098    0.0000    0.0000  +1.8327
+E0-RIDGE           Ridge Regression         squared_error (L2)  89.0954  +0.0055 108.7108  66.1057  +0.0041  -0.0006   136.5474    3.1077    0.0286  +1.7703
+E1-RIDGE           Ridge Regression         squared_error (L2)  89.1114  +0.0216 108.7100  66.1176  +0.0160  -0.0006   136.6301    3.1234    0.0287  +1.8529
+E0-HGB-R0          HistGradientBoostingRegressor squared_error (L2)  89.1354  +0.0456 108.7366  66.1354  +0.0338  -0.0011   136.8559    3.3280    0.0306  +2.0787
+E1-HGB-R0          HistGradientBoostingRegressor squared_error (L2)  89.1107  +0.0209 108.7174  66.1171  +0.0155  -0.0007   136.7094    3.2942    0.0303  +1.9323
+HGB-R1             HistGradientBoostingRegressor squared_error (L2)  89.0690  -0.0208 108.6745  66.0862  -0.0154   0.0001   136.5822    1.5887    0.0146  +1.8051
+HGB-R2             HistGradientBoostingRegressor squared_error (L2)  89.0749  -0.0149 108.6769  66.0905  -0.0111   0.0000   136.5530    1.4599    0.0134  +1.7759
+RF-R1-REG          RandomForestRegressor    squared_error (L2)  89.0703  -0.0195 108.6844  66.0871  -0.0145  -0.0001   136.4912    1.9761    0.0182  +1.7140
+HGB-L1-E0-R0       HistGradientBoostingRegressor absolute_error (L1)  86.0587  -3.0312 111.9538  63.8526  -2.2490  -0.0612   108.1104    3.1793    0.0293 -26.6667
+HGB-L1-E1-R0       HistGradientBoostingRegressor absolute_error (L1)  86.0801  -3.0097 111.9993  63.8685  -2.2331  -0.0620   108.0318    3.1617    0.0291 -26.7453
+HGB-L1-E1-R1       HistGradientBoostingRegressor absolute_error (L1)  86.0259  -3.0639 111.9580  63.8283  -2.2733  -0.0613   107.9477    2.0814    0.0192 -26.8294
+HGB-L1-E1-R2       HistGradientBoostingRegressor absolute_error (L1)  86.0236  -3.0663 111.9542  63.8265  -2.2751  -0.0612   107.9796    1.3542    0.0125 -26.7975
+HGB-POISSON-E1-R1  HistGradientBoostingRegressor poisson             89.0781  -0.0117 108.6748  66.0929  -0.0087   0.0001   136.6201    1.4130    0.0130  +1.8430
+HGB-POISSON-E1-R2  HistGradientBoostingRegressor poisson             89.0905  +0.0007 108.6772  66.1021  +0.0005   0.0000   136.6303    1.5137    0.0139  +1.8531
+
+Metric-by-Metric Improvement Identification Relative to Step 10 Mean Baseline (MAE=89.0898, WAPE=66.1016%, RMSE=108.6944, R²=-0.0003):
+  - Experiments improving Validation MAE  : ['HGB-R1', 'HGB-R2', 'RF-R1-REG', 'HGB-L1-E0-R0', 'HGB-L1-E1-R0', 'HGB-L1-E1-R1', 'HGB-L1-E1-R2', 'HGB-POISSON-E1-R1']
+  - Experiments improving Validation WAPE : ['HGB-R1', 'HGB-R2', 'RF-R1-REG', 'HGB-L1-E0-R0', 'HGB-L1-E1-R0', 'HGB-L1-E1-R1', 'HGB-L1-E1-R2', 'HGB-POISSON-E1-R1']
+  - Experiments improving Validation RMSE : ['HGB-R1', 'HGB-R2', 'RF-R1-REG', 'HGB-POISSON-E1-R1', 'HGB-POISSON-E1-R2']
+  - Experiments improving Validation R²   : ['HGB-R1', 'HGB-R2', 'RF-R1-REG', 'HGB-POISSON-E1-R1', 'HGB-POISSON-E1-R2']
+
+================================================================================
+10. PREDICTION COMPRESSION ANALYSIS
+================================================================================
+Actual Validation Standard Deviation : 108.6864
+
+Experiment_ID      Prediction_Mean  Prediction_Std    Std_Ratio   Pred_Actual_Corr Compression Assessment
+------------------------------------------------------------------------------------------------------------------------
+REF-MEAN                  136.6098          0.0000       0.0000           +0.00000 Compressed near Mean/Median (< 3.5% of Actual STD)
+E0-RIDGE                  136.5474          3.1077       0.0286           +0.00867 Compressed near Mean/Median (< 3.5% of Actual STD)
+E1-RIDGE                  136.6301          3.1234       0.0287           +0.00946 Compressed near Mean/Median (< 3.5% of Actual STD)
+E0-HGB-R0                 136.8559          3.3280       0.0306           +0.00394 Compressed near Mean/Median (< 3.5% of Actual STD)
+E1-HGB-R0                 136.7094          3.2942       0.0303           +0.00869 Compressed near Mean/Median (< 3.5% of Actual STD)
+HGB-R1                    136.5822          1.5887       0.0146           +0.01951 Compressed near Mean/Median (< 3.5% of Actual STD)
+HGB-R2                    136.5530          1.4599       0.0134           +0.01807 Compressed near Mean/Median (< 3.5% of Actual STD)
+RF-R1-REG                 136.4912          1.9761       0.0182           +0.01313 Compressed near Mean/Median (< 3.5% of Actual STD)
+HGB-L1-E0-R0              108.1104          3.1793       0.0293           -0.00191 Compressed near Mean/Median (< 3.5% of Actual STD)
+HGB-L1-E1-R0              108.0318          3.1617       0.0291           -0.01080 Compressed near Mean/Median (< 3.5% of Actual STD)
+HGB-L1-E1-R1              107.9477          2.0814       0.0192           +0.00148 Compressed near Mean/Median (< 3.5% of Actual STD)
+HGB-L1-E1-R2              107.9796          1.3542       0.0125           -0.00914 Compressed near Mean/Median (< 3.5% of Actual STD)
+HGB-POISSON-E1-R1         136.6201          1.4130       0.0130           +0.02046 Compressed near Mean/Median (< 3.5% of Actual STD)
+HGB-POISSON-E1-R2         136.6303          1.5137       0.0139           +0.01855 Compressed near Mean/Median (< 3.5% of Actual STD)
+
+================================================================================
+11. ERROR ANALYSIS BY TARGET RANGE (STEP 12F — VALIDATION ONLY)
+================================================================================
+
+Candidate Experiment: REF-MEAN (Mean Baseline | squared_error (L2) | Constant Mean (mu=136.6098))
+  Target_Range                 Count   Actual_Mean    Pred_Mean        MAE  Mean_Error(P-A)
+  ----------------------------------------------------------------------------------------
+  0–99 (Low Demand)            3,532         47.05       136.61      89.56           +89.56
+  100–199 (Mid Demand)         1,926        144.95       136.61      24.49            -8.34
+  200–299 (Moderately High)    1,092        244.19       136.61     107.58          -107.58
+  300–399 (High Demand)          572        341.46       136.61     204.85          -204.85
+  400+ (Peak Demand)             178        430.01       136.61     293.40          -293.40
+
+Candidate Experiment: E1-RIDGE (Ridge Regression | squared_error (L2) | alpha=1.0)
+  Target_Range                 Count   Actual_Mean    Pred_Mean        MAE  Mean_Error(P-A)
+  ----------------------------------------------------------------------------------------
+  0–99 (Low Demand)            3,532         47.05       136.65      89.60           +89.60
+  100–199 (Mid Demand)         1,926        144.95       136.54      24.57            -8.41
+  200–299 (Moderately High)    1,092        244.19       136.63     107.55          -107.55
+  300–399 (High Demand)          572        341.46       136.64     204.82          -204.82
+  400+ (Peak Demand)             178        430.01       137.13     292.87          -292.87
+
+Candidate Experiment: HGB-R1 (HistGradientBoostingRegressor | squared_error (L2) | R1 Moderate (lr=0.05, leaves=15, min_leaf=30, l2=1.0))
+  Target_Range                 Count   Actual_Mean    Pred_Mean        MAE  Mean_Error(P-A)
+  ----------------------------------------------------------------------------------------
+  0–99 (Low Demand)            3,532         47.05       136.56      89.51           +89.51
+  100–199 (Mid Demand)         1,926        144.95       136.59      24.52            -8.36
+  200–299 (Moderately High)    1,092        244.19       136.61     107.58          -107.58
+  300–399 (High Demand)          572        341.46       136.59     204.87          -204.87
+  400+ (Peak Demand)             178        430.01       136.80     293.21          -293.21
+
+Candidate Experiment: HGB-R2 (HistGradientBoostingRegressor | squared_error (L2) | R2 Stronger (lr=0.05, leaves=15, min_leaf=60, l2=5.0))
+  Target_Range                 Count   Actual_Mean    Pred_Mean        MAE  Mean_Error(P-A)
+  ----------------------------------------------------------------------------------------
+  0–99 (Low Demand)            3,532         47.05       136.53      89.48           +89.48
+  100–199 (Mid Demand)         1,926        144.95       136.56      24.55            -8.39
+  200–299 (Moderately High)    1,092        244.19       136.56     107.63          -107.63
+  300–399 (High Demand)          572        341.46       136.58     204.88          -204.88
+  400+ (Peak Demand)             178        430.01       136.75     293.26          -293.26
+
+Candidate Experiment: HGB-POISSON-E1-R1 (HistGradientBoostingRegressor | poisson | R1 Moderate (lr=0.05, leaves=15, min_leaf=30, l2=1.0))
+  Target_Range                 Count   Actual_Mean    Pred_Mean        MAE  Mean_Error(P-A)
+  ----------------------------------------------------------------------------------------
+  0–99 (Low Demand)            3,532         47.05       136.60      89.55           +89.55
+  100–199 (Mid Demand)         1,926        144.95       136.62      24.51            -8.33
+  200–299 (Moderately High)    1,092        244.19       136.65     107.54          -107.54
+  300–399 (High Demand)          572        341.46       136.64     204.83          -204.83
+  400+ (Peak Demand)             178        430.01       136.81     293.20          -293.20
+
+Candidate Experiment: HGB-L1-E1-R2 (HistGradientBoostingRegressor | absolute_error (L1) | R2 Stronger (lr=0.05, leaves=15, min_leaf=60, l2=5.0))
+  Target_Range                 Count   Actual_Mean    Pred_Mean        MAE  Mean_Error(P-A)
+  ----------------------------------------------------------------------------------------
+  0–99 (Low Demand)            3,532         47.05       108.00      60.94           +60.94
+  100–199 (Mid Demand)         1,926        144.95       107.95      37.95           -37.00
+  200–299 (Moderately High)    1,092        244.19       107.98     136.21          -136.21
+  300–399 (High Demand)          572        341.46       107.97     233.49          -233.49
+  400+ (Peak Demand)             178        430.01       107.96     322.05          -322.05
+
+Candidate Experiment: HGB-L1-E0-R0 (HistGradientBoostingRegressor | absolute_error (L1) | R0 Baseline (lr=0.1, leaves=31, min_leaf=20, l2=0.0))
+  Target_Range                 Count   Actual_Mean    Pred_Mean        MAE  Mean_Error(P-A)
+  ----------------------------------------------------------------------------------------
+  0–99 (Low Demand)            3,532         47.05       108.13      61.08           +61.08
+  100–199 (Mid Demand)         1,926        144.95       108.11      37.94           -36.84
+  200–299 (Moderately High)    1,092        244.19       108.06     136.13          -136.13
+  300–399 (High Demand)          572        341.46       108.07     233.39          -233.39
+  400+ (Peak Demand)             178        430.01       108.22     321.78          -321.78
+
+================================================================================
+12. LEAKAGE AUDIT (STEP 12G)
+================================================================================
+  [PASS] 1. Demand Forecast not used
+  [PASS] 2. Current Units Sold not used in features
+  [PASS] 3. Future Units Sold not used
+  [PASS] 4. Same-day Inventory Level not used
+  [PASS] 5. Same-day Units Ordered not used
+  [PASS] 6. Test not used (zero evaluations, zero predictions, zero target access)
+  [PASS] 7. Validation not used for feature construction beyond legitimate historical lags
+  [PASS] 8. Store/Product entity boundaries respected (100 independent groups verified)
+  [PASS] 9. Train/validation chronological split unchanged (58,500 / 7,300)
+  [PASS] 10. No random train/test split
+  [PASS] 11. No target encoding using future observations
+  [PASS] 12. No arbitrary imputation of structural historical NaNs
+  [PASS] 13. No locked dataset overwrite (train.csv, validation.csv, test.csv, model_ready_dataset.csv untouched)
+  [PASS] 14. No baseline artifact overwrite (Step 10 .joblib models untouched)
+
+================================================================================
+13. EXPERIMENT FINDINGS
+================================================================================
+1. Effect of Entity-Aware Historical Features (Step 12A / 12B — E1 vs E0):
+   - The three Store x Product lagged expanding features (Store_Product_Expanding_Mean_Lagged,
+     Store_Product_Expanding_Std_Lagged, Store_Product_Lag1_vs_Expanding_Mean) were constructed across all
+     100 Store x Product groups with zero leakage.
+   - In TRAIN, their Pearson correlations with day-t Units Sold are near zero (+0.008154,
+     +0.001878, +0.000622), because every Store x Product pair
+     in this dataset has nearly the same long-run mean (~136.7) and standard deviation (~108.3).
+   - Adding E1 to Ridge (E1-RIDGE vs E0-RIDGE) changes WAPE by +0.0119 pp
+     and MAE by +0.0161. Adding E1 to HGB (E1-HGB-R0 vs E0-HGB-R0)
+     slightly improves MAE by -0.0247 (from 89.1354 to 89.1107).
+
+2. Effect of Controlled Tree Regularization (Step 12C — HGB-R0, HGB-R1, HGB-R2, RF-R1-REG):
+   - Moderate/stronger tree regularization (HGB-R1 / HGB-R2) stabilizes HistGradientBoosting, improving
+     Validation MAE from 89.1107 (E1-HGB-R0) to 89.0690 (HGB-R1)
+     and RMSE from 108.7174 to 108.6745 (R² = +0.0001, outperforming Mean Baseline by -0.0208 MAE / -0.0154 pp WAPE).
+   - Depth-constraining Random Forest (RF-R1-REG: max_depth=6, min_samples_leaf=50) eliminates the Step 10
+     Random Forest over-dispersion error, reducing Validation MAE from 90.7605 (Step 10 unconstrained RF)
+     down to 89.0703 (-1.6902 units improvement) and WAPE from 67.34% down to 66.09%.
+
+3. Effect of Alternative Loss Objectives (Step 12D — L1 Absolute Error vs L2 Squared Error vs Poisson):
+   - Optimizing L1 / Absolute Error (HGB-L1-E0-R0, HGB-L1-E1-R0, HGB-L1-E1-R1, HGB-L1-E1-R2) shifts model
+     predictions from the conditional MEAN (~136.6) to the conditional MEDIAN (~107.9 - 108.1).
+   - Because the target distribution is right-skewed (Validation Mean = 134.78 vs Median = 104.00), predicting near
+     the median (~108.0) reduces Validation MAE from 89.0898 (Mean Baseline) to 86.0236 (HGB-L1-E1-R2,
+     a reduction of -3.0663 units) and reduces Validation WAPE from 66.1016%
+     down to 63.8265% (-2.2751 percentage points improvement)!
+   - CRITICAL DIAGNOSTIC TRADE-OFF OF L1 OBJECTIVE:
+     While L1 models achieve the lowest MAE (86.0236) and lowest WAPE (63.8265%),
+     shifting predictions to the median (~108.0) introduces:
+       (a) Systematic negative bias of -26.80 units per row (under-forecasting total volume by ~20%),
+       (b) Higher RMSE (111.9542 vs 108.6944 for L2/Mean),
+       (c) Negative R² (-0.0612 vs -0.0003 for L2/Mean), and
+       (d) Persistent prediction compression (Prediction STD = 1.3542, Std Ratio = 0.0125).
+   - Thus, the WAPE/MAE reduction under L1 comes strictly from a statistical location shift (Median vs Mean on a
+     right-skewed distribution) rather than true dynamic variance explanation or decompression.
+
+================================================================================
+14. RECOMMENDED CONFIGURATION FOR STEP 13
+================================================================================
+Decision Rule Evaluation:
+  - Primary Metric (WAPE) Winner   : HGB-L1-E1-R2 (WAPE = 63.8265% vs 66.1016% Mean Baseline; dWAPE = -2.2751 pp)
+  - Secondary Metric (MAE) Winner  : HGB-L1-E1-R2 (MAE = 86.0236 vs 89.0898 Mean Baseline; dMAE = -3.0663)
+  - Secondary Metric (RMSE) Winner : HGB-R1 (RMSE = 108.6745)
+  - Diagnostic Metric (R²) Winner  : HGB-R1 (R² = 0.0001)
+
+Explicit Assessment of Meaningful Improvement:
+  - No meaningful validation improvement in dynamic variance explanation (R² or prediction decompression) was demonstrated in Step 12.
+  - Specifically, under L2 / Poisson objectives, the best regularized model (HGB-R1) improves WAPE by only -0.0154 percentage points
+    (66.0862% vs 66.1016%) and R² to +0.0001, while under L1 objective (HGB-L1-E1-R2), WAPE improves by -2.2751 percentage points
+    (63.8265% vs 66.1016%) and MAE by -3.0663 units (86.0236 vs 89.0898) strictly by shifting predictions to the conditional median (~108.0),
+    which incurs a -26.80 unit volume under-prediction bias and increases RMSE to 111.9542.
+  - Recommended Configuration for STEP 13:
+    * If optimizing pure point-error WAPE/MAE: HGB-L1-E1-R2 (HistGradientBoostingRegressor, Feature Set: E1 36 features,
+      Objective: loss='absolute_error', max_iter=200, learning_rate=0.05, max_leaf_nodes=15, min_samples_leaf=60, l2_regularization=5.0).
+    * If requiring volume-unbiased L2/RMSE forecasting for inventory replenishment: HGB-R1 (HistGradientBoostingRegressor,
+      Feature Set: E1 36 features, Objective: loss='squared_error', max_iter=200, learning_rate=0.05, max_leaf_nodes=15,
+      min_samples_leaf=30, l2_regularization=1.0) paired with Step 10 Ridge Regression (E0-RIDGE, alpha=1.0).
+
+================================================================================
+15. FINAL STATUS
+================================================================================
+
+============================================================
+STEP 12 COMPLETE
+================
+
+Entity Feature Validation: PASS
+Baseline Experiment: PASS
+Entity-Aware Experiment: PASS
+Tree Regularization Experiment: PASS
+Alternative Objective Experiment: PASS
+Leakage Audit: PASS
+Test Isolation: PASS
+Dataset Integrity: PASS
+
+Best Validation WAPE: 63.8265% (HGB-L1-E1-R2, vs 66.1016% Mean Baseline; dWAPE = -2.2751 pp)
+Best Validation MAE: 86.0236 (HGB-L1-E1-R2, vs 89.0898 Mean Baseline; dMAE = -3.0663)
+Best Validation RMSE: 108.6745 (HGB-R1, vs 108.6944 Mean Baseline)
+Best Validation R²: 0.0001 (HGB-R1, vs -0.0003 Mean Baseline)
+
+Prediction Compression:
+Not Improved (All regularized models remain compressed near conditional mean/median with Std Ratio 0.0125–0.0306 due to near-zero pre-timestamp autocorrelation)
+
+Meaningful Validation Improvement:
+NO on R² / Variance Explanation (No meaningful dynamic variance explanation was demonstrated in Step 12; L2/Poisson models improve WAPE by <= 0.0154 pp, while L1 models reduce WAPE by -2.2751 pp / MAE by -3.0663 units strictly via median location shift at the cost of -26.80 units volume bias and higher RMSE)
+
+Recommended Configuration for STEP 13:
+1. Primary WAPE/MAE Candidate: HistGradientBoostingRegressor (HGB-L1-E1-R2 | Feature Set: E1 36 features | Objective: loss='absolute_error' | Params: max_iter=200, learning_rate=0.05, max_leaf_nodes=15, min_samples_leaf=60, l2_regularization=5.0, early_stopping=True)
+2. Volume-Unbiased L2/RMSE Candidate: HistGradientBoostingRegressor (HGB-R1 | Feature Set: E1 36 features | Objective: loss='squared_error' | Params: max_iter=200, learning_rate=0.05, max_leaf_nodes=15, min_samples_leaf=30, l2_regularization=1.0, early_stopping=True) & Step 10 Ridge Baseline (E0-RIDGE, alpha=1.0)
+
+TEST DATA STATUS:
+UNTOUCHED
+
+OVERALL STATUS:
+STEP 12 — SUCCESS
+==========================

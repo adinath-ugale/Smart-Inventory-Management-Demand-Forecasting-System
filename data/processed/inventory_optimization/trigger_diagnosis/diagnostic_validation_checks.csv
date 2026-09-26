@@ -1,0 +1,13 @@
+Check_Code,Check_Description,Status,Evidence
+CHECK_01,TEST rows excluded,PASS,"0 TEST rows in development set (65,800 TRAIN+VALIDATION rows; max date = 2023-10-20)"
+CHECK_02,TEST Units Sold excluded,PASS,All historical baselines capped <= 2023-10-20; splits/test.csv never read
+CHECK_03,No future demand used,PASS,"Max_Source_Demand_Date_Used <= D - 1 day across all 65,800 rows"
+CHECK_04,No current-day Units Sold used,PASS,Current-day Units Sold strictly excluded from Demand_Baseline and Demand_Std
+CHECK_05,Demand Forecast not used,PASS,Demand Forecast column absent from dataset and unused in any calculation
+CHECK_06,TRAIN + VALIDATION only,PASS,"Development population restricted strictly to TRAIN (58,500) + VALIDATION (7,300)"
+CHECK_07,Policy formula unchanged,PASS,LTD = Baseline*LT; SS = Z*Std*sqrt(LT); ROP = LTD + SS verified to 1e-12 tolerance
+CHECK_08,Row grain preserved,PASS,"1 unique row per Date x Store ID x Product ID (65,800 rows)"
+CHECK_09,Store x Product grouping valid,PASS,100 unique Store_Product_ID groups; Reorder_Count + Monitor_Count = Active_Rows everywhere
+CHECK_10,Scenario calculations use only allowed assumptions,PASS,"LT in {2, 4, 7} & SL in {90%, 95%, 99%}; monotonicity across LT and SL verified"
+CHECK_11,Source inventory_optimization_dataset.csv unmodified,PASS,SHA-256 unchanged (5b99992ce112d9dc...)
+CHECK_12,TEST file (splits/test.csv) SHA-256 unchanged,PASS,SHA-256 unchanged (4fd35bc0da8548ed...)

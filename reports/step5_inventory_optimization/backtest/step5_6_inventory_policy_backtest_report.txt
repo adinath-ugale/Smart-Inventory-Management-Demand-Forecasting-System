@@ -1,0 +1,247 @@
+================================================================================
+STEP 5.6 — INVENTORY POLICY BACKTESTING
+================================================================================
+
+1. OBJECTIVE
+--------------------------------------------------------------------------------
+Historically backtest the locked Step 5 inventory reorder-point policy across
+TRAIN + VALIDATION (2022-01-01 to 2023-10-20; 65,800 rows) without modifying any
+policy formula, lead-time assumption, service-level assumption, or safety-stock
+buffer. The central backtest question is:
+"When the policy would have triggered a reorder at decision date D, what happened
+to demand and recorded inventory over the subsequent lead-time horizon?"
+
+2. INPUT DATA
+--------------------------------------------------------------------------------
+- Primary Input Dataset : C:\SIM&DFS\data\processed\inventory_optimization_dataset.csv
+- Verified Input Grain  : 73,100 rows x 45 columns (Read-Only; SHA-256 verified unchanged)
+- Development Subset    : 65,800 rows (TRAIN: 58,500 rows [2022-01-01..2023-08-08] +
+                          VALIDATION: 7,300 rows [2023-08-09..2023-10-20])
+- Entity Structure      : 5 Stores (S001–S005) x 20 Products (P0001–P0020) = 100 Store_Product_IDs
+
+3. DEVELOPMENT POPULATION (POLICY DECISIONS VS. BACKTEST OUTCOME ELIGIBILITY)
+--------------------------------------------------------------------------------
+To prevent boundary truncation bias while strictly forbidding lookahead into TEST
+(2023-10-21+), two explicit populations are maintained:
+1. POLICY_DECISION_POPULATION (65,700 rows):
+   All rows in TRAIN + VALIDATION where the pre-decision policy parameters
+   (Current_Inventory, Demand_Baseline, Demand_Std, Lead_Time_Days, Service_Level_Z)
+   are available (2022-01-02 to 2023-10-20 across 100 entities; excludes only the
+   100 cold-start rows on 2022-01-01).
+2. BACKTEST_OUTCOME_POPULATION:
+   All rows in POLICY_DECISION_POPULATION where the complete L-day future demand
+   horizon [D, D + L - 1] is fully observed inside TRAIN + VALIDATION (Date <= 2023-10-20):
+   - 2-Day Horizon (Future_Demand_2D, D <= 2023-10-19) : 65,600 eligible rows (100 tail rows excluded)
+   - 4-Day Horizon (Future_Demand_4D, D <= 2023-10-17) : 65,400 eligible rows (300 tail rows excluded)
+   - 7-Day Horizon (Future_Demand_7D, D <= 2023-10-14) : 65,100 eligible rows (600 tail rows excluded)
+
+4. TEST PROTECTION
+--------------------------------------------------------------------------------
+- TEST Period Excluded  : 2023-10-21 through 2024-01-01 (7,300 rows)
+- Zero TEST Units Sold were read or used for policy inputs or future demand windows.
+- TEST File Checksum    :
+  * TEST_SHA256_BEFORE  : 4fd35bc0da8548ed50e347d6d0a00f925d75a40ee3382f79f51dff3462edbe96
+  * TEST_SHA256_AFTER   : 4fd35bc0da8548ed50e347d6d0a00f925d75a40ee3382f79f51dff3462edbe96
+  * TEST_FILE_UNCHANGED : PASS
+
+5. DECISION-TIME INFORMATION RULES & INVENTORY SEMANTICS LIMITATION
+--------------------------------------------------------------------------------
+- At decision date D, POLICY INPUTS (Demand_Baseline, Demand_Std) use strictly Date < D.
+- Current-day Units Sold(D) and subsequent sales Units Sold(D+1..D+L-1) are strictly
+  excluded from policy parameters and used exclusively as BACKTEST OUTCOMES.
+- Inventory Semantics Statement:
+  "The historical backtest evaluates the policy against the recorded Inventory Level.
+   Because the timing semantics of Inventory Level are unknown (inventory_level_time_semantics = 'unknown'),
+   the results represent a conditional historical policy simulation rather than a fully
+   verified operational inventory simulation."
+
+6. LOCKED POLICY FORMULA (SEPARATION OF INPUTS, OUTPUTS, AND OUTCOMES)
+--------------------------------------------------------------------------------
+A. POLICY INPUTS (Known or Assumed at Start of Day D):
+   - Demand_Baseline (Measured Historical Mean for Date < D)
+   - Demand_Std      (Measured Historical Sample STD for Date < D)
+   - Lead_Time_Days  (Assumed Scenario Parameter: Base = 4 days; Grid = 2, 4, 7 days)
+   - Service_Level   (Assumed Policy Target: Base = 95% [Z = 1.6449]; Grid = 90%, 95%, 99%)
+
+B. POLICY OUTPUTS (Derived at Start of Day D):
+   - Lead_Time_Demand = Demand_Baseline * Lead_Time_Days
+   - Safety_Stock     = Z * Demand_Std * sqrt(Lead_Time_Days)
+   - Reorder_Point    = Lead_Time_Demand + Safety_Stock
+   - Reorder_Flag     = 1 (REORDER) if Current_Inventory <= Reorder_Point else 0 (MONITOR)
+
+C. BACKTEST OUTCOMES (Realized over [D, D + L - 1]):
+   - Future_Demand_LD       = sum(Units Sold[D : D + L - 1])
+   - LTD_Coverage_Flag      = 1 if Future_Demand_LD <= Lead_Time_Demand else 0
+   - ROP_Coverage_Flag      = 1 if Future_Demand_LD <= Reorder_Point else 0
+   - Future_Demand_to_LTD   = Future_Demand_LD / Lead_Time_Demand
+   - Future_Demand_to_ROP   = Future_Demand_LD / Reorder_Point
+   - Zero_Inventory_Flag    = 1 if Current_Inventory <= 0 else 0
+
+7. BACKTEST OUTCOME DEFINITIONS & COVERAGE TERMINOLOGY
+--------------------------------------------------------------------------------
+- When Future_Demand_LD <= Lead_Time_Demand : "LTD covered realized demand."
+- When Future_Demand_LD >  Lead_Time_Demand : "Realized demand exceeded calculated LTD."
+- When Future_Demand_LD <= Reorder_Point    : "ROP covered realized demand."
+- When Future_Demand_LD >  Reorder_Point    : "Realized demand exceeded calculated ROP."
+  (Note: Realized demand > ROP is reported strictly as "Realized demand exceeded calculated ROP"
+   or "ROP coverage failure", NOT as a confirmed physical stockout, because order arrival
+   and inventory flow semantics are unverified.)
+
+8. BASE POLICY RESULTS SUMMARY (LT = 4 DAYS, SL = 95%, Z = 1.6449)
+--------------------------------------------------------------------------------
+- Policy Decision Count (Active Policy Pop.) : 65,700 rows
+- Backtest Eligible Count (Complete 4D Pop.) : 65,400 rows
+- Reorder Count (Policy / Backtest Eligible) : 65,700 / 65,400 rows
+- Monitor Count (Policy / Backtest Eligible) : 0 / 0 rows
+- Conditional Trigger Rate (Policy / Backtest): 100.0000% / 100.0000%
+- Mean Policy Lead_Time_Demand (LTD)         : 546.8055 units
+- Mean Policy Safety_Stock (SS)              : 357.2657 units
+- Mean Policy Reorder_Point (ROP)            : 904.0712 units
+- Mean Realized Future 4-Day Demand          : 545.4023 units (Median = 527.0000, P95 = 932.0000)
+- LTD Coverage % (Future_Demand_4D <= LTD)   : 53.2752% (34,842 rows: "LTD covered realized demand")
+- Future Demand > LTD %                      : 46.7248% (30,558 rows: "Realized demand exceeded calculated LTD")
+- ROP Coverage % (Future_Demand_4D <= ROP)   : 93.3012% (61,019 rows: "ROP covered realized demand")
+- Future Demand > ROP %                      : 6.6988% (4,381 rows: "Realized demand exceeded calculated ROP")
+- Mean Future_Demand_4D / LTD Ratio          : 1.0026 (Mean LTD Demand Gap = +1.4032 units)
+- Mean Future_Demand_4D / ROP Ratio          : 0.6052 (Mean ROP Demand Gap = +358.6689 units)
+- Zero Inventory Rate                        : 0.0000% (0 rows with Inventory Level <= 0)
+
+9. REORDER VS. MONITOR OUTCOMES & 2x2 DESCRIPTIVE MATRIX
+--------------------------------------------------------------------------------
+A. Base Scenario (LT = 4, SL = 95%) 2x2 Descriptive Outcome Matrix (N = 65,400):
+   - REORDER + LTD Covered  (Future_Demand_4D <= LTD) : 34,842 rows ( 53.28%)
+   - REORDER + LTD Exceeded (Future_Demand_4D >  LTD) : 30,558 rows ( 46.72%)
+   - MONITOR + LTD Covered  (Future_Demand_4D <= LTD) :      0 rows (  0.00%)
+   - MONITOR + LTD Exceeded (Future_Demand_4D >  LTD) :      0 rows (  0.00%)
+   (Under ROP threshold: REORDER + ROP Covered = 61,019 rows [93.30%];
+    REORDER + ROP Exceeded = 4,381 rows [6.70%].)
+
+B. REORDER vs. MONITOR Group Comparison Across Scenarios (Including LT2 where MONITOR rows occur):
+Scenario        | Action  | Eligible | Mean_Fut | Med_Fut | P95_Fut | Fut/LTD | Fut/ROP | Fut>LTD% | Fut>ROP%
+-------------------------------------------------------------------------------------------------------------
+LT4_SL95 (BASE) | REORDER |   65,400 |   545.40 |  527.00 |  932.00 |  1.0026 |  0.6052 |   46.72% |    6.70%
+LT4_SL95 (BASE) | MONITOR |        0 |      N/A |     N/A |     N/A |     N/A |     N/A |      N/A |      N/A
+LT2_SL90        | REORDER |   61,099 |   265.20 |  245.00 |  539.00 |  0.9696 |  0.5632 |   43.24% |   10.19%
+LT2_SL90        | MONITOR |    4,501 |   375.09 |  373.00 |  682.00 |  1.4526 |  0.8356 |   71.12% |   34.01%
+LT2_SL95        | REORDER |   65,199 |   272.12 |  252.00 |  554.00 |  0.9985 |  0.5181 |   44.94% |    6.83%
+LT2_SL95        | MONITOR |      401 |   374.72 |  362.00 |  692.00 |  1.6957 |  0.8423 |   79.55% |   32.67%
+LT2_SL99        | REORDER |   65,575 |   272.70 |  252.00 |  554.00 |  1.0023 |  0.4335 |   45.13% |    2.24%
+LT2_SL99        | MONITOR |       25 |   374.16 |  394.00 |  675.00 |  2.1527 |  0.8588 |   84.00% |   44.00%
+
+10. FUTURE DEMAND COVERAGE INTERPRETATION
+--------------------------------------------------------------------------------
+- In the Base Scenario (LT=4, SL=95%), Mean Future_Demand_4D (545.40 units) closely matches
+  Mean Policy Lead_Time_Demand (546.81 units), with Mean Future_Demand_4D / LTD = 1.0026.
+- Consequently, Lead_Time_Demand alone covers realized 4-day demand on 53.28% of eligible
+  decisions (34,842 rows), while realized 4-day demand exceeds Lead_Time_Demand on 46.72%
+  of eligible decisions (30,558 rows).
+- Adding the 95% Safety Stock buffer (+357.27 units, bringing Mean ROP to 904.07 units) raises
+  4-day realized demand coverage from 53.28% (LTD) to 93.30% (61,019 rows covered by ROP;
+  only 6.70% [4,381 rows] exceed ROP). Notice that the empirical ROP coverage rate achieved
+  on realized 4-day demand (93.30%) closely tracks the assumed 95.00% target service level
+  under the square-root-of-lead-time normal approximation.
+
+11. 2-DAY, 4-DAY, AND 7-DAY HORIZON RESULTS (AT SL = 95%)
+--------------------------------------------------------------------------------
+Horizon       | Eligible | REORDER | MONITOR | Mean_Fut | Mean_LTD | Mean_ROP | Fut/LTD | LTD_Cov% | ROP_Cov% | Fut>LTD% | Fut>ROP%
+-----------------------------------------------------------------------------------------------------------------------------------
+2-Day Horizon |   65,600 |  65,199 |     401 |   272.74 |   273.40 |   526.03 |  1.0027 |   54.85% |   93.01% |   45.15% |    6.99%
+4-Day Horizon |   65,400 |  65,400 |       0 |   545.40 |   546.81 |   904.07 |  1.0026 |   53.28% |   93.30% |   46.72% |    6.70%
+7-Day Horizon |   65,100 |  65,100 |       0 |   954.43 |   956.92 |  1429.53 |  1.0026 |   52.40% |   93.54% |   47.60% |    6.46%
+
+12. NINE-SCENARIO BACKTEST COMPARISON (ALIGNED LEAD-TIME HORIZONS)
+--------------------------------------------------------------------------------
+Scenario | LT |  SL | Eligible | Reorder | Monitor | Trig%  | Mean_LTD | Mean_ROP | Mean_Fut | LTD_Cov% | ROP_Cov% | Fut>ROP% | ROP_Gap
+----------------------------------------------------------------------------------------------------------------------------------------
+LT2_SL90 |  2 | 90% |   65,600 |  61,099 |   4,501 | 93.14% |   273.40 |   470.23 |   272.74 |   54.85% |   88.18% |   11.82% | +197.49
+LT2_SL95 |  2 | 95% |   65,600 |  65,199 |     401 | 99.39% |   273.40 |   526.03 |   272.74 |   54.85% |   93.01% |    6.99% | +253.29
+LT2_SL99 |  2 | 99% |   65,600 |  65,575 |      25 | 99.96% |   273.40 |   630.68 |   272.74 |   54.85% |   97.75% |    2.25% | +357.94
+LT4_SL90 |  4 | 90% |   65,400 |  65,400 |       0 | 100.00% |   546.81 |   825.16 |   545.40 |   53.28% |   88.69% |   11.31% | +279.76
+LT4_SL95 |  4 | 95% |   65,400 |  65,400 |       0 | 100.00% |   546.81 |   904.07 |   545.40 |   53.28% |   93.30% |    6.70% | +358.67
+LT4_SL99 |  4 | 99% |   65,400 |  65,400 |       0 | 100.00% |   546.81 |  1052.07 |   545.40 |   53.28% |   98.02% |    1.98% | +506.67
+LT7_SL90 |  7 | 90% |   65,100 |  65,100 |       0 | 100.00% |   956.92 |  1325.15 |   954.43 |   52.40% |   88.82% |   11.18% | +370.72
+LT7_SL95 |  7 | 95% |   65,100 |  65,100 |       0 | 100.00% |   956.92 |  1429.53 |   954.43 |   52.40% |   93.54% |    6.46% | +475.10
+LT7_SL99 |  7 | 99% |   65,100 |  65,100 |       0 | 100.00% |   956.92 |  1625.31 |   954.43 |   52.40% |   98.09% |    1.91% | +670.88
+
+13. STORE x PRODUCT BACKTEST ANALYSIS (100 GROUPS, BASE LT=4, SL=95%)
+--------------------------------------------------------------------------------
+- Total Store x Product Groups Evaluated : 100 (Sorted by Store ID, Product ID)
+- Decisions per Group                    : 657 policy decisions | 654 eligible 4D backtest decisions
+- Trigger Rate Across All 100 Groups     : Min = 100.00% | Median = 100.00% | Max = 100.00%
+- Group Mean Future 4D Demand Range      : Min = 508.23 | Median = 544.88 | Max = 600.69
+- Group LTD Coverage Rate Range          : Min = 44.19% | Median = 53.21% | Max = 62.08%
+- Group ROP Coverage Rate Range          : Min = 90.06% | Median = 93.27% | Max = 97.09%
+- Group Mean Future_Demand / ROP Range   : Min = 0.5702 | Median = 0.6054 | Max = 0.6459
+
+14. ZERO-INVENTORY DIAGNOSTIC & SUBSEQUENT INVENTORY OBSERVATIONS
+--------------------------------------------------------------------------------
+- Overall Zero Inventory Rate (TRAIN + VALIDATION, 65,800 rows) : 0.0000% (0 rows; min Inventory Level = 50.0 units)
+- Zero Inventory Rate among REORDER rows (65,400 rows)          : 0.0000% (0 rows)
+- Zero Inventory Rate among MONITOR rows                        : 0.0000% (0 rows across all LT2 scenarios; 0 MONITOR rows in LT4)
+- Descriptive Subsequent Recorded Inventory Levels (Base Eligible Rows):
+  * Mean Current_Inventory at D     : 274.45 units
+  * Mean Inventory_Level at D + 1   : 274.44 units
+  * Mean Inventory_Level at D + 4   : 274.49 units
+  (Reported strictly as descriptive observations; no synthetic Inventory + Orders - Sales
+   balance reconstruction was performed because Units Ordered timing semantics are unverified.)
+
+15. LEAKAGE AUDIT (13 VERIFICATION CHECKS)
+--------------------------------------------------------------------------------
+  [PASS] CHECK 1: No TEST rows used — 0 TEST rows in development/backtest population (max date = 2023-10-20)
+  [PASS] CHECK 2: No TEST Units Sold used — Forward demand windows stop at 2023-10-20; 2023-10-18..20 set to NaN for 4D
+  [PASS] CHECK 3: Decision features use Date < D only — Max_Source_Demand_Date_Used <= D - 1 day for 100% of rows
+  [PASS] CHECK 4: Current-day Units Sold is not used to calculate policy parameters — Demand_Baseline and Demand_Std shifted by +1 day before expanding calculation
+  [PASS] CHECK 5: Future Units Sold is used ONLY as backtest outcome — Future_Demand_2D/4D/7D computed strictly post-decision and never fed into policy formulas
+  [PASS] CHECK 6: Future demand does not enter Demand_Baseline — Demand_Baseline 100% identical to locked Step 5 pre-decision values
+  [PASS] CHECK 7: Future demand does not enter Demand_Std — Demand_Std 100% identical to locked Step 5 pre-decision values
+  [PASS] CHECK 8: Future demand does not enter Safety_Stock — Safety_Stock = Z * Demand_Std * sqrt(LT) verified to 1e-12
+  [PASS] CHECK 9: Future demand does not enter Reorder_Point — Reorder_Point = Lead_Time_Demand + Safety_Stock verified to 1e-12
+  [PASS] CHECK 10: Demand Forecast is not used — Demand Forecast column completely excluded
+  [PASS] CHECK 11: Units Ordered is not used to reconstruct inventory — No synthetic Inventory + Orders - Sales reconstruction performed
+  [PASS] CHECK 12: Store x Product entity boundaries are preserved — Forward sums and baselines computed strictly within each of 100 Store_Product_IDs
+  [PASS] CHECK 13: TEST SHA-256 unchanged — SHA-256 identical before & after (4fd35bc0da8548ed50e347d6d0a00f925d75a40ee3382f79f51dff3462edbe96)
+
+16. TEST INTEGRITY
+--------------------------------------------------------------------------------
+- TEST File Path      : C:\SIM&DFS\data\processed\splits\test.csv
+- TEST_SHA256_BEFORE  : 4fd35bc0da8548ed50e347d6d0a00f925d75a40ee3382f79f51dff3462edbe96
+- TEST_SHA256_AFTER   : 4fd35bc0da8548ed50e347d6d0a00f925d75a40ee3382f79f51dff3462edbe96
+- TEST_FILE_UNCHANGED : PASS
+
+17. LIMITATIONS
+--------------------------------------------------------------------------------
+1. Unknown Inventory Timing Semantics (inventory_level_time_semantics = 'unknown'):
+   Recorded Inventory Level ([50, 499] units, mean 274.56) cannot be verified as
+   beginning-of-day or end-of-day stock, nor does it include cumulative on-order
+   pipeline inventory.
+2. Unverified Replenishment Execution (Units Ordered):
+   A REORDER flag indicates only that recorded Inventory Level was at or below
+   Reorder_Point under the specified assumptions; it does not prove that an order
+   was placed, received after L days, or that a physical stockout occurred or was
+   prevented.
+3. Horizon Boundary Truncation at End of VALIDATION:
+   To strictly avoid reading TEST Units Sold (2023-10-21+), the final L-1 days of
+   VALIDATION (100 rows for 2D, 300 rows for 4D, 600 rows for 7D) do not have complete
+   future windows inside TRAIN + VALIDATION and are kept in POLICY_DECISION_POPULATION
+   while excluded from BACKTEST_OUTCOME_POPULATION.
+
+18. CONCLUSION
+--------------------------------------------------------------------------------
+The historical backtest of the unchanged Step 5 reorder-point policy across
+TRAIN + VALIDATION demonstrates two distinct empirical findings:
+1. Trigger-Rate Behavior (Inventory State vs. Threshold):
+   The 4-day, 95% base scenario produced a conditional trigger rate of 100.00% among
+   all 65,700 active policy decision rows (and 100.00% among all 65,400 backtest-eligible
+   rows) because recorded Current_Inventory averages 274.56 units (max 499.00), whereas
+   4-day expected demand plus safety stock averages 904.07 units (min 484.78).
+2. Realized Future Demand Coverage (Threshold vs. Subsequent Demand):
+   Among the 65,400 rows with complete 4-day future demand, realized 4-day demand
+   averaged 545.40 units (closely matching the pre-decision 4-day Lead_Time_Demand
+   baseline of 546.81 units; Mean Future_Demand_4D / LTD = 1.0026). While 46.72% of
+   eligible rows (30,558 rows) had realized 4-day demand greater than Lead_Time_Demand alone,
+   the calculated Reorder_Point (LTD + Safety_Stock) covered realized 4-day demand on
+   93.30% of eligible decisions (61,019 rows covered; only 6.70% [4,381 rows]
+   exceeded ROP). Across all 9 scenarios (LT = 2, 4, 7 days x SL = 90%, 95%, 99%), empirical
+   ROP coverage rates (88.18%–88.82% for SL=90%, 93.01%–93.54% for SL=95%, and 97.75%–98.09%
+   for SL=99%) track the assumed target service levels monotonically.
+================================================================================

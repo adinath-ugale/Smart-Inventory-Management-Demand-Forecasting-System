@@ -1,0 +1,92 @@
+{
+  "policy_name": "Risk-Based Inventory Replenishment Framework",
+  "step": "STEP 5.7 — FINAL INVENTORY POLICY SPECIFICATION & DECISION FRAMEWORK",
+  "status": "COMPLETE_AND_FROZEN",
+  "policy_classification": "RISK_BASED_REPLENISHMENT_DECISION_FRAMEWORK",
+  "inventory_level_time_semantics": "unknown",
+  "base_policy": {
+    "scenario_name": "LT4_SL95",
+    "lead_time_days": 4,
+    "lead_time_source": "ASSUMED_SCENARIO",
+    "service_level": 0.95,
+    "service_level_source": "ASSUMED_POLICY",
+    "z_value": 1.6449,
+    "service_level_z": 1.6449,
+    "safety_stock_method": "STD_SQRT_LEAD_TIME",
+    "formulas": {
+      "lead_time_demand": "Demand_Baseline * Lead_Time_Days",
+      "safety_stock": "Z * Demand_Std * sqrt(Lead_Time_Days)",
+      "reorder_point": "Lead_Time_Demand + Safety_Stock",
+      "decision_rule": "INSUFFICIENT_DATA if inputs missing else ('REORDER' if Current_Inventory <= Reorder_Point else 'MONITOR')"
+    },
+    "validated_backtest_metrics_train_val": {
+      "policy_decision_population": 65700,
+      "backtest_eligible_population_4d": 65400,
+      "mean_current_inventory": 274.56,
+      "mean_lead_time_demand": 546.81,
+      "mean_safety_stock": 357.27,
+      "mean_reorder_point": 904.07,
+      "mean_realized_4d_demand": 545.4,
+      "mean_realized_demand_to_ltd_ratio": 1.0026,
+      "ltd_coverage_pct": 53.28,
+      "rop_coverage_pct": 93.3,
+      "realized_demand_exceeded_rop_pct": 6.7,
+      "zero_inventory_flag_pct": 0.0,
+      "conditional_policy_trigger_rate_pct": 100.0
+    }
+  },
+  "scenario_parameters": {
+    "lead_time_days": [2, 4, 7],
+    "service_levels": [0.9, 0.95, 0.99],
+    "z_values": {
+      "0.90": 1.2816,
+      "0.95": 1.6449,
+      "0.99": 2.3263
+    }
+  },
+  "history_requirements": {
+    "mean_min_history": 7,
+    "std_min_history": 30
+  },
+  "fallback_hierarchy": [
+    "STORE_PRODUCT",
+    "PRODUCT",
+    "STORE",
+    "GLOBAL_TRAIN"
+  ],
+  "fallback_hierarchy_details": {
+    "order": [
+      "STORE_PRODUCT",
+      "PRODUCT",
+      "STORE",
+      "GLOBAL_TRAIN",
+      "INSUFFICIENT_DATA"
+    ],
+    "min_history_for_mean": 7,
+    "min_history_for_std": 30,
+    "zero_fill_missing_history": false
+  },
+  "test_isolation": {
+    "test_used": false,
+    "test_period": "2023-10-21 to 2024-01-01",
+    "test_rows": 7300,
+    "test_sha256": "4fd35bc0da8548ed50e347d6d0a00f925d75a40ee3382f79f51dff3462edbe96",
+    "step5_6_leakage_checks": "13 / 13 PASS"
+  },
+  "decision_timing_rule": {
+    "decision_point": "START_OF_DAY_D",
+    "eligible_history": "Date < D",
+    "historical_cutoff_date": "D - 1 day",
+    "inventory_level_time_semantics": "unknown",
+    "inventory_usability_status": "SEMANTICS_UNKNOWN",
+    "units_ordered_treated_as_on_order": false
+  },
+  "scenario_grid": {
+    "lead_time_days_options": [2, 4, 7],
+    "service_level_options": [
+      {"service_level": 0.9, "z_value": 1.2816},
+      {"service_level": 0.95, "z_value": 1.6449},
+      {"service_level": 0.99, "z_value": 2.3263}
+    ]
+  }
+}

@@ -1,0 +1,4 @@
+Horizon_Days,Lead_Time_Days,Service_Level_Pct,Z_Value,Policy_Decision_Rows,Eligible_Decisions,Incomplete_Future_Window_Rows,REORDER_Decisions,MONITOR_Decisions,Trigger_Rate_Pct,Mean_Future_Demand,Median_Future_Demand,Mean_Policy_LTD,Mean_Policy_ROP,Mean_Future_Demand_to_LTD,Mean_Future_Demand_to_ROP,LTD_Coverage_Rate_Pct,ROP_Coverage_Rate_Pct,Demand_Exceeding_LTD_Rate_Pct,Demand_Exceeding_ROP_Rate_Pct
+2-Day Horizon,2,95%,1.6449,65700,65600,100,65199,401,99.3887,272.743,252.0,273.4006,526.0282,1.0027,0.5201,54.8506,93.0137,45.1494,6.9863
+4-Day Horizon,4,95%,1.6449,65700,65400,300,65400,0,100.0,545.4023,527.0,546.8055,904.0712,1.0026,0.6052,53.2752,93.3012,46.7248,6.6988
+7-Day Horizon,7,95%,1.6449,65700,65100,600,65100,0,100.0,954.4336,938.0,956.9218,1429.533,1.0026,0.67,52.3994,93.5407,47.6006,6.4593

@@ -1,0 +1,582 @@
+================================================================================
+STEP 11 — BASELINE FEATURE & MODEL DIAGNOSTIC AUDIT
+================================================================================
+
+================================================================================
+1. ENVIRONMENT
+================================================================================
+Python Version       : 3.14.7
+Pandas Version       : 3.0.6
+NumPy Version        : 2.5.3
+Scikit-Learn Version : 1.9.1
+Joblib Version       : 1.6.0
+Execution Mode       : Read-Only Diagnostic Audit (Zero Retraining, Zero Dataset Mutation)
+
+================================================================================
+2. DATASET INTEGRITY & TEST DATA ISOLATION CHECK
+================================================================================
+  TRAIN                         : 58,500 rows | 37 cols | Date: 2022-01-01 -> 2023-08-08 | Dups: 0 | Target Nulls: 0 | Target Negs: 0
+  VALIDATION                    :  7,300 rows | 37 cols | Date: 2023-08-09 -> 2023-10-20 | Dups: 0 | Target Nulls: 0 | Target Negs: 0
+  TEST (Structural Check Only)  :  7,300 rows | 37 cols | Date: 2023-10-21 -> 2024-01-01 | Dups: 0 | Target Nulls: 0 | Target Negs: 0
+  MODEL_READY_DATASET           : 73,100 rows | 37 cols | Schema Match: EXACT
+Dataset Integrity Status: PASS
+TEST Set Isolation Status: PASS (Checked structurally only; never used for correlations, predictions, or error metrics)
+
+================================================================================
+3. STEP 10 FEATURE USAGE VERIFICATION
+================================================================================
+Inspected Script                   : C:\SIM&DFS\scripts\train_baseline_models.py
+Inspected Saved Pipelines          : ridge_baseline.joblib, random_forest_baseline.joblib, hist_gradient_boosting_baseline.joblib
+Target Column (y)                  : 'Units Sold'
+Columns placed into X (Count=33)   : ['Category', 'Region', 'Seasonality', 'Year', 'Month', 'Day', 'Day_of_Week', 'Is_Weekend', 'Units_Sold_Lag_1', 'Units_Sold_Lag_3', 'Units_Sold_Lag_7', 'Units_Sold_Lag_14', 'Units_Sold_Lag_21', 'Units_Sold_Lag_30', 'Units_Sold_Rolling_Mean_7', 'Units_Sold_Rolling_Std_7', 'Units_Sold_Rolling_Mean_14', 'Units_Sold_Rolling_Std_14', 'Units_Sold_Rolling_Mean_30', 'Units_Sold_Rolling_Std_30', 'Units_Sold_Rolling_Median_7', 'Units_Sold_Trend_7', 'Demand_CV_7', 'Demand_CV_14', 'Demand_CV_30', 'Inventory_Lag_1', 'Units_Ordered_Lag_1', 'Inventory_Demand_Coverage_7', 'Order_Demand_Ratio_7', 'Price_Lag_1', 'Discount_Lag_1', 'Competitor_Price_Gap_Lag_1', 'Promotion_Lag_1']
+Columns treated as Categorical (3) : ['Category', 'Region', 'Seasonality']
+Columns treated as Numerical (30)  : ['Year', 'Month', 'Day', 'Day_of_Week', 'Is_Weekend', 'Units_Sold_Lag_1', 'Units_Sold_Lag_3', 'Units_Sold_Lag_7', 'Units_Sold_Lag_14', 'Units_Sold_Lag_21', 'Units_Sold_Lag_30', 'Units_Sold_Rolling_Mean_7', 'Units_Sold_Rolling_Std_7', 'Units_Sold_Rolling_Mean_14', 'Units_Sold_Rolling_Std_14', 'Units_Sold_Rolling_Mean_30', 'Units_Sold_Rolling_Std_30', 'Units_Sold_Rolling_Median_7', 'Units_Sold_Trend_7', 'Demand_CV_7', 'Demand_CV_14', 'Demand_CV_30', 'Inventory_Lag_1', 'Units_Ordered_Lag_1', 'Inventory_Demand_Coverage_7', 'Order_Demand_Ratio_7', 'Price_Lag_1', 'Discount_Lag_1', 'Competitor_Price_Gap_Lag_1', 'Promotion_Lag_1']
+Columns excluded from train.csv (4): ['Date', 'Store ID', 'Product ID', 'Units Sold']
+Was 'Store ID' included in X?      : NO (Correctly Excluded)
+Was 'Product ID' included in X?    : NO (Correctly Excluded)
+Was 'Date' included in X?          : NO (Correctly Excluded)
+Was any Target/Leakage col in X?   : NO (Zero Leakage Columns)
+Were all 33 approved features used?: YES
+Missing approved features          : NONE (0)
+Unapproved extra features used     : NONE (0)
+
+STEP 10 FEATURE USAGE STATUS:
+PASS
+
+Saved Feature Usage Audit CSV to: C:\SIM&DFS\reports\step11_feature_usage_audit.csv (50 rows audited)
+
+Full 33 Approved Feature Verification Table:
+No.  Feature                        Approved_Status        Used_In_Step10   Feature_Type   Leakage_Risk
+-------------------------------------------------------------------------------------------------------------------
+1    Category                       APPROVED (Locked 33)   YES              Categorical    NONE (Verified Pre-Prediction-Timestamp t)
+2    Region                         APPROVED (Locked 33)   YES              Categorical    NONE (Verified Pre-Prediction-Timestamp t)
+3    Seasonality                    APPROVED (Locked 33)   YES              Categorical    NONE (Verified Pre-Prediction-Timestamp t)
+4    Year                           APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+5    Month                          APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+6    Day                            APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+7    Day_of_Week                    APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+8    Is_Weekend                     APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+9    Units_Sold_Lag_1               APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+10   Units_Sold_Lag_3               APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+11   Units_Sold_Lag_7               APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+12   Units_Sold_Lag_14              APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+13   Units_Sold_Lag_21              APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+14   Units_Sold_Lag_30              APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+15   Units_Sold_Rolling_Mean_7      APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+16   Units_Sold_Rolling_Std_7       APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+17   Units_Sold_Rolling_Mean_14     APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+18   Units_Sold_Rolling_Std_14      APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+19   Units_Sold_Rolling_Mean_30     APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+20   Units_Sold_Rolling_Std_30      APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+21   Units_Sold_Rolling_Median_7    APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+22   Units_Sold_Trend_7             APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+23   Demand_CV_7                    APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+24   Demand_CV_14                   APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+25   Demand_CV_30                   APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+26   Inventory_Lag_1                APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+27   Units_Ordered_Lag_1            APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+28   Inventory_Demand_Coverage_7    APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+29   Order_Demand_Ratio_7           APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+30   Price_Lag_1                    APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+31   Discount_Lag_1                 APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+32   Competitor_Price_Gap_Lag_1     APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+33   Promotion_Lag_1                APPROVED (Locked 33)   YES              Numerical      NONE (Verified Pre-Prediction-Timestamp t)
+
+================================================================================
+4. CATEGORICAL FEATURE HANDLING VERIFICATION
+================================================================================
+Approved Categorical Features      : ['Category', 'Region', 'Seasonality']
+Step 10 Categorical Features Used  : ['Category', 'Region', 'Seasonality']
+Was 'Store ID' used as categorical?: NO
+Was 'Product ID' used as cat?      : NO
+OneHotEncoder Output Columns (13) : ['Category_Clothing', 'Category_Electronics', 'Category_Furniture', 'Category_Groceries', 'Category_Toys', 'Region_East', 'Region_North', 'Region_South', 'Region_West', 'Seasonality_Autumn', 'Seasonality_Spring', 'Seasonality_Summer', 'Seasonality_Winter']
+Categorical Feature Verification   : PASS
+
+================================================================================
+5. TARGET DISTRIBUTION AUDIT (TRAIN vs VALIDATION)
+================================================================================
+Statistic                          TRAIN (n=58,500)   VALIDATION (n=7,300)
+--------------------------------------------------------------------------
+Row Count                                    58,500                  7,300
+Mean                                       136.6098               134.7771
+Median                                     108.0000               104.0000
+Standard Deviation (STD)                   109.0865               108.6864
+Minimum                                      0.0000                 0.0000
+Maximum                                    499.0000               488.0000
+25th Percentile (Q1)                        49.0000                47.0000
+75th Percentile (Q3)                       203.0000               200.0000
+Interquartile Range (IQR)                  154.0000               153.0000
+Zero Count (Units Sold == 0)                    298                     33
+Zero Percentage (%)                         0.5094%                0.4521%
+Values < 10                                   2,946                    384
+Values > 400                                  1,391                    174
+Values > 450                                    335                     46
+Coefficient of Variation                     0.7985                 0.8064
+
+Diagnostic Interpretation of Target Distribution:
+  - Both TRAIN and VALIDATION exhibit wide, right-skewed dispersion (Mean ~ 136.6 / 134.8, STD ~ 109.1 / 108.7, CV ~ 0.80).
+  - The IQR spans 154 units (Q1=49 to Q3=203 in TRAIN), ranging from 0 up to 499 units.
+  - Zero-demand observations represent ~0.51% in TRAIN (298 rows) and ~0.45% in VALIDATION (33 rows).
+  - Because the intrinsic standard deviation (~109 units) is ~80% of the mean (~136 units), any model predicting
+    near the conditional mean inherently faces a baseline MAE of ~89 units and WAPE of ~66% unless features explain
+    a high fraction of variance.
+
+================================================================================
+6. FEATURE-TARGET RELATIONSHIP ANALYSIS (TRAIN ONLY)
+================================================================================
+Saved Feature-Target Correlation CSV to: C:\SIM&DFS\reports\step11_feature_target_correlation.csv
+
+Numerical Feature-Target Correlations on TRAIN (Sorted by Absolute_Pearson Descending):
+Rank  Feature                           Pearson_r   Spearman_r  |Pearson_r| |Spearman_r|
+---------------------------------------------------------------------------------------
+1     Units_Sold_Rolling_Std_30          0.010626     0.011688     0.010626     0.011688
+2     Promotion_Lag_1                   -0.010221    -0.009182     0.010221     0.009182
+3     Units_Sold_Rolling_Mean_30         0.005959     0.009031     0.005959     0.009031
+4     Units_Ordered_Lag_1                0.005298     0.006560     0.005298     0.006560
+5     Order_Demand_Ratio_7               0.004937     0.004908     0.004937     0.004908
+6     Demand_CV_14                       0.004934     0.005197     0.004934     0.005197
+7     Demand_CV_30                       0.004881     0.005028     0.004881     0.005028
+8     Units_Sold_Lag_21                  0.004815     0.002128     0.004815     0.002128
+9     Units_Sold_Lag_30                 -0.004577    -0.009579     0.004577     0.009579
+10    Competitor_Price_Gap_Lag_1         0.004309     0.004466     0.004309     0.004466
+11    Is_Weekend                        -0.004262    -0.006578     0.004262     0.006578
+12    Units_Sold_Lag_14                 -0.003586    -0.002032     0.003586     0.002032
+13    Units_Sold_Rolling_Std_14          0.003165     0.005355     0.003165     0.005355
+14    Inventory_Lag_1                    0.002654     0.003094     0.002654     0.003094
+15    Units_Sold_Lag_3                   0.002371     0.000573     0.002371     0.000573
+16    Discount_Lag_1                    -0.002045    -0.001868     0.002045     0.001868
+17    Day                                0.001927     0.004454     0.001927     0.004454
+18    Year                              -0.001736    -0.002523     0.001736     0.002523
+19    Units_Sold_Rolling_Median_7       -0.001514     0.000218     0.001514     0.000218
+20    Demand_CV_7                       -0.001219     0.000212     0.001219     0.000212
+21    Month                              0.001113     0.000522     0.001113     0.000522
+22    Units_Sold_Rolling_Mean_7         -0.001090     0.000584     0.001090     0.000584
+23    Units_Sold_Lag_1                   0.001074     0.003252     0.001074     0.003252
+24    Units_Sold_Trend_7                -0.001059    -0.005030     0.001059     0.005030
+25    Units_Sold_Lag_7                  -0.001057     0.000943     0.001057     0.000943
+26    Units_Sold_Rolling_Std_7          -0.001021     0.002652     0.001021     0.002652
+27    Price_Lag_1                       -0.000961    -0.000102     0.000961     0.000102
+28    Inventory_Demand_Coverage_7        0.000723     0.002911     0.000723     0.002911
+29    Day_of_Week                       -0.000624    -0.003370     0.000624     0.003370
+30    Units_Sold_Rolling_Mean_14         0.000310     0.001300     0.000310     0.001300
+
+Grouped Target Statistics by Categorical Features (TRAIN ONLY):
+
+  Categorical Feature: Category
+  Level                     Count    Mean_Units_Sold  Median_Units_Sold   Std_Units_Sold
+  ------------------------------------------------------------------------------------
+  Clothing                 11,750           136.7185           109.0000         108.4210
+  Electronics              11,537           135.2573           105.0000         108.8736
+  Furniture                11,721           137.2494           109.0000         109.7818
+  Groceries                11,776           137.7176           109.0000         110.0188
+  Toys                     11,716           136.0794           108.0000         108.3213
+
+  Categorical Feature: Region
+  Level                     Count    Mean_Units_Sold  Median_Units_Sold   Std_Units_Sold
+  ------------------------------------------------------------------------------------
+  East                     14,638           137.4307           109.0000         109.7838
+  North                    14,585           136.5660           107.0000         109.5240
+  South                    14,660           137.1063           108.0000         109.0934
+  West                     14,617           135.3334           106.0000         107.9351
+
+  Categorical Feature: Seasonality
+  Level                     Count    Mean_Units_Sold  Median_Units_Sold   Std_Units_Sold
+  ------------------------------------------------------------------------------------
+  Autumn                   14,575           137.5364           109.0000         109.0634
+  Spring                   14,662           136.0780           108.0000         108.7657
+  Summer                   14,677           135.6988           106.0000         109.4958
+  Winter                   14,586           137.1351           108.0000         109.0198
+
+CRITICAL FINDING ON FEATURE-TARGET RELATIONSHIPS:
+  - The maximum absolute Pearson correlation across all 30 numerical features in TRAIN is only 0.010626 (Units_Sold_Rolling_Std_30).
+  - All 30 numerical features have |Pearson r| < 0.015 and |Spearman r| < 0.015 with Units Sold.
+  - Across Category, Region, and Seasonality in TRAIN, group means are virtually identical (~135.7 to ~137.4) and medians (~107 to ~109).
+  - Note: Low bivariate correlation does not automatically rule out higher-order nonlinear or conditional interactions,
+    which is why tree-based ensemble models (Random Forest, HistGradientBoosting) are also audited below.
+
+================================================================================
+7. HISTORICAL DEMAND (LAG / ROLLING) FEATURE SIGNAL AUDIT
+================================================================================
+Feature                       Pearson_r Spearman_r  Tr_NaN Val_NaN   Tr_Mean    Tr_Std    Tr_Min    Tr_Max
+----------------------------------------------------------------------------------------------------------
+Units_Sold_Lag_1               0.001074   0.003252     100       0    136.61    109.09      0.00    499.00
+Units_Sold_Lag_3               0.002371   0.000573     300       0    136.59    109.10      0.00    499.00
+Units_Sold_Lag_7              -0.001057   0.000943     700       0    136.57    109.07      0.00    499.00
+Units_Sold_Lag_14             -0.003586  -0.002032    1400       0    136.50    109.09      0.00    499.00
+Units_Sold_Lag_21              0.004815   0.002128    2100       0    136.45    109.11      0.00    499.00
+Units_Sold_Lag_30             -0.004577  -0.009579    3000       0    136.33    109.06      0.00    499.00
+Units_Sold_Rolling_Mean_7     -0.001090   0.000584     700       0    136.59     41.15     16.29    315.14
+Units_Sold_Rolling_Mean_14     0.000310   0.001300    1400       0    136.56     29.17     40.50    266.36
+Units_Sold_Rolling_Mean_30     0.005959   0.009031    3000       0    136.50     20.15     72.33    219.07
+Units_Sold_Rolling_Std_7      -0.001021   0.002652     700       0    104.18     32.50      7.08    214.57
+Units_Sold_Rolling_Std_14      0.003165   0.005355    1400       0    106.88     21.99     24.24    186.23
+Units_Sold_Rolling_Std_30      0.010626   0.011688    3000       0    108.14     14.67     48.31    156.46
+Units_Sold_Rolling_Median_7   -0.001514   0.000218     700       0    115.91     52.97      5.00    389.00
+Units_Sold_Trend_7            -0.001059  -0.005030     700       0      0.01     20.63    -80.29     81.61
+
+Historical Demand Signal Assessment:
+  - In VALIDATION, missing count is 0 across all 14 lag/rolling demand features.
+  - In TRAIN, structural warm-up NaNs exist only at the start of each store-product series (100 to 3,000 rows).
+  - All 14 historical demand features show near-zero linear (|Pearson r| <= 0.010626) and monotonic (|Spearman r| <= 0.011688)
+    bivariate association with day-t Units Sold, indicating that in this dataset daily demand behaves largely as an
+    independent / white-noise draw around the global expectation (~136.6) rather than an autocorrelated time series.
+  - Note: While low linear/monotonic correlation does not alone preclude nonlinear or conditional interactions,
+    even unconstrained nonlinear tree ensembles (RF, HGB) fail to extract predictive lift above the mean baseline.
+
+================================================================================
+8. VALIDATION PREDICTION DIAGNOSTICS (VALIDATION ONLY)
+================================================================================
+Saved Validation Prediction Diagnostics CSV to: C:\SIM&DFS\reports\step11_prediction_diagnostics.csv
+
+Model                              Mean   Median      Std      Min      Max  Unique  Corr(P,A)     Bias      MAE     RMSE       R²    WAPE%
+-----------------------------------------------------------------------------------------------------------------------------------------------
+Naive Historical Baseline        134.35   104.00   108.50     0.00   488.00     471   -0.01700    -0.43 120.5285 154.8641  -1.0305    89.43
+Mean Baseline                    136.61   136.61     0.00   136.61   136.61       1    0.00000    +1.83  89.0898 108.6944  -0.0003    66.10
+Ridge Regression                 136.55   136.49     3.11   121.85   151.33    7295    0.00867    +1.77  89.0954 108.7108  -0.0006    66.11
+Random Forest Regressor          142.30   141.69    13.82   102.42   241.56    5196    0.00863    +7.52  90.7605 109.6936  -0.0188    67.34
+HistGradientBoostingRegressor    136.86   136.35     3.33   121.40   169.61    2797    0.00394    +2.08  89.1354 108.7366  -0.0011    66.14
+
+================================================================================
+9. PREDICTION COMPRESSION ANALYSIS
+================================================================================
+Actual Validation Target Standard Deviation (Actual_STD) : 108.6864
+Actual Validation Target Range                           : [0.00, 488.00] (Mean = 134.7771)
+
+Model                              Prediction_STD     Actual_STD   Prediction_STD_Ratio Dispersion Behavior
+----------------------------------------------------------------------------------------------------------------------
+Naive Historical Baseline                108.4999       108.6864                 0.9983 Uncompressed / Full Historical Dispersion (Carry-Forward Noise)
+Mean Baseline                              0.0000       108.6864                 0.0000 Extreme Compression Toward Global Mean (< 5% of Actual STD)
+Ridge Regression                           3.1077       108.6864                 0.0286 Extreme Compression Toward Global Mean (< 5% of Actual STD)
+Random Forest Regressor                   13.8183       108.6864                 0.1271 Severe Compression Toward Mean (< 25% of Actual STD)
+HistGradientBoostingRegressor              3.3280       108.6864                 0.0306 Extreme Compression Toward Global Mean (< 5% of Actual STD)
+
+Objective Explanation of Prediction Compression:
+  1. Ridge Regression (STD = 3.1077, Ratio = 0.0286): Predictions span only [121.85, 151.33]. Because all linear
+     feature-target correlations are near zero (|r| <= 0.0106), OLS/Ridge minimizes squared error by shrinking
+     weights near zero and predicting close to the intercept (~136.61).
+  2. HistGradientBoosting (STD = 3.3280, Ratio = 0.0306): Predictions span [121.40, 169.61]. Early stopping
+     terminated at 11 iterations because shallow tree splits on weak signal yielded no further validation gain.
+  3. Random Forest (STD = 13.8183, Ratio = 0.1271): Predictions span [102.42, 241.56]. Because trees were grown
+     to full depth (max_depth=None) and averaged over 200 bootstrap trees, RF captures local training noise,
+     yielding wider dispersion (13.82 units) that slightly hurts validation MAE (90.76 vs 89.09) and R² (-0.0188).
+
+================================================================================
+10. RANDOM FOREST FEATURE IMPORTANCE DIAGNOSTIC
+================================================================================
+Saved Random Forest Feature Importance CSV to: C:\SIM&DFS\reports\step11_feature_importance.csv
+Total Sum of Aggregated 33 Feature Importances: 1.000000
+
+Random Forest Feature Importances (All 33 Approved Features, Ranked Descending):
+Rank  Feature                              Importance    Pct_Share
+-------------------------------------------------------------------
+1     Price_Lag_1                            0.046087        4.61%
+2     Competitor_Price_Gap_Lag_1             0.044447        4.44%
+3     Units_Sold_Lag_21                      0.041984        4.20%
+4     Units_Sold_Lag_30                      0.041423        4.14%
+5     Units_Sold_Lag_3                       0.041367        4.14%
+6     Units_Sold_Lag_14                      0.040775        4.08%
+7     Units_Sold_Trend_7                     0.040369        4.04%
+8     Units_Sold_Lag_7                       0.038843        3.88%
+9     Demand_CV_14                           0.037895        3.79%
+10    Units_Sold_Lag_1                       0.037531        3.75%
+11    Demand_CV_30                           0.037440        3.74%
+12    Demand_CV_7                            0.036448        3.64%
+13    Units_Sold_Rolling_Std_30              0.036366        3.64%
+14    Units_Sold_Rolling_Std_14              0.035299        3.53%
+15    Units_Sold_Rolling_Mean_14             0.035276        3.53%
+16    Order_Demand_Ratio_7                   0.035017        3.50%
+17    Units_Sold_Rolling_Mean_30             0.034990        3.50%
+18    Inventory_Demand_Coverage_7            0.034738        3.47%
+19    Units_Sold_Rolling_Std_7               0.034243        3.42%
+20    Inventory_Lag_1                        0.033820        3.38%
+21    Units_Ordered_Lag_1                    0.033173        3.32%
+22    Units_Sold_Rolling_Median_7            0.032794        3.28%
+23    Day                                    0.030904        3.09%
+24    Units_Sold_Rolling_Mean_7              0.029867        2.99%
+25    Month                                  0.020673        2.07%
+26    Category                               0.018347        1.83%
+27    Day_of_Week                            0.015585        1.56%
+28    Region                                 0.015467        1.55%
+29    Seasonality                            0.015334        1.53%
+30    Discount_Lag_1                         0.013043        1.30%
+31    Promotion_Lag_1                        0.004376        0.44%
+32    Year                                   0.003931        0.39%
+33    Is_Weekend                             0.002148        0.21%
+
+Note: Impurity-based (Gini/variance reduction) importance in unregularized deep trees favors continuous high-cardinality
+features (Price_Lag_1, Competitor_Price_Gap_Lag_1, Units_Sold_Lag_*, Demand_CV_*, Rolling_Std_*) because they offer more
+candidate split points to partition noise when true signal is weak. Do not interpret impurity importance as causal.
+
+================================================================================
+11. RIDGE REGRESSION COEFFICIENT DIAGNOSTIC
+================================================================================
+Ridge Intercept (Baseline Level) : 136.6061
+Total Transformed Features       : 43 (13 One-Hot Categorical Levels + 30 Standardized Numerical Features)
+
+Rank  Transformed_Feature                       Coefficient  |Coefficient|
+---------------------------------------------------------------------------
+1     num__Units_Sold_Rolling_Std_14              -5.803298       5.803298
+2     num__Units_Sold_Rolling_Mean_14             +5.639135       5.639135
+3     num__Demand_CV_14                           +5.429983       5.429983
+4     num__Units_Sold_Rolling_Mean_7              -3.796836       3.796836
+5     num__Units_Sold_Rolling_Std_30              +2.889239       2.889239
+6     num__Demand_CV_7                            -2.742197       2.742197
+7     num__Inventory_Lag_1                        +2.371078       2.371078
+8     num__Inventory_Demand_Coverage_7            -2.231447       2.231447
+9     num__Units_Sold_Rolling_Std_7               +2.130930       2.130930
+10    cat__Category_Electronics                   -1.347964       1.347964
+11    cat__Region_West                            -1.303902       1.303902
+12    num__Demand_CV_30                           -1.272779       1.272779
+13    num__Units_Sold_Rolling_Mean_30             -1.178692       1.178692
+14    num__Promotion_Lag_1                        -1.153177       1.153177
+15    num__Is_Weekend                             -1.112449       1.112449
+16    cat__Category_Groceries                     +1.063861       1.063861
+17    num__Units_Sold_Trend_7                     -0.983349       0.983349
+18    cat__Seasonality_Summer                     -0.908818       0.908818
+19    cat__Seasonality_Autumn                     +0.892891       0.892891
+20    num__Day_of_Week                            +0.827370       0.827370
+21    cat__Region_East                            +0.803538       0.803538
+22    num__Units_Sold_Lag_30                      -0.698018       0.698018
+23    cat__Category_Furniture                     +0.659501       0.659501
+24    num__Units_Sold_Lag_3                       +0.614248       0.614248
+25    num__Order_Demand_Ratio_7                   +0.606260       0.606260
+26    cat__Seasonality_Winter                     +0.563796       0.563796
+27    cat__Seasonality_Spring                     -0.547869       0.547869
+28    cat__Region_South                           +0.528087       0.528087
+29    num__Units_Sold_Lag_14                      -0.513314       0.513314
+30    cat__Category_Toys                          -0.495219       0.495219
+31    num__Units_Sold_Lag_7                       -0.470415       0.470415
+32    num__Competitor_Price_Gap_Lag_1             +0.465926       0.465926
+33    num__Units_Sold_Lag_1                       +0.432176       0.432176
+34    num__Units_Sold_Rolling_Median_7            -0.325383       0.325383
+35    num__Units_Sold_Lag_21                      +0.275048       0.275048
+36    num__Discount_Lag_1                         -0.229112       0.229112
+37    num__Day                                    +0.201057       0.201057
+38    num__Year                                   -0.150702       0.150702
+39    num__Units_Ordered_Lag_1                    +0.144261       0.144261
+40    cat__Category_Clothing                      +0.119820       0.119820
+41    num__Price_Lag_1                            -0.099394       0.099394
+42    num__Month                                  +0.066845       0.066845
+43    cat__Region_North                           -0.027723       0.027723
+
+Note on Ridge Coefficients:
+  - Even after standardizing numerical features, the largest coefficients (num__Units_Sold_Rolling_Std_14 = -5.8033,
+    num__Units_Sold_Rolling_Mean_14 = +5.6391, num__Demand_CV_14 = +5.4300, num__Units_Sold_Rolling_Mean_7 = -3.7968)
+    largely cancel each other out due to mathematical collinearity between Rolling_Mean, Rolling_Std, and Demand_CV
+    (since Demand_CV_14 = Rolling_Std_14 / Rolling_Mean_14), while standalone lag/context weights are all < 2.4 units.
+  - Coefficient magnitude alone does not prove causal importance due to collinearity and scaling/encoding differences.
+
+================================================================================
+12. HISTGRADIENTBOOSTING MODEL DIAGNOSTIC
+================================================================================
+Fitted Estimator Class        : HistGradientBoostingRegressor
+Number of Fitted Iterations   : 11
+Has feature_importances_ attr : False
+Feature importance not directly available from this fitted HistGradientBoosting model.
+
+================================================================================
+13. BASELINE METRIC COMPARISON RELATIVE TO MEAN BASELINE (VALIDATION ONLY)
+================================================================================
+Model                                MAE      dMAE      RMSE     dRMSE        R²       dR²     MAPE%    WAPE%  dWAPE(pp)
+-------------------------------------------------------------------------------------------------------------------------
+Naive Historical Baseline       120.5285  +31.4387  154.8641  +46.1697   -1.0305   -1.0303    368.99    89.43   +23.3264
+Mean Baseline                    89.0898   +0.0000  108.6944   +0.0000   -0.0003   +0.0000    357.03    66.10    +0.0000
+Ridge Regression                 89.0954   +0.0055  108.7108   +0.0164   -0.0006   -0.0003    356.59    66.11    +0.0041
+Random Forest Regressor          90.7605   +1.6707  109.6936   +0.9992   -0.0188   -0.0185    371.20    67.34    +1.2396
+HistGradientBoostingRegressor    89.1354   +0.0456  108.7366   +0.0422   -0.0011   -0.0008    357.19    66.14    +0.0338
+
+Relative Comparison Summary:
+  - Ridge Regression WAPE difference from Mean Baseline          = +0.0041 percentage points (MAE diff = +0.0055).
+  - HistGradientBoosting WAPE difference from Mean Baseline      = +0.0338 percentage points (MAE diff = +0.0456).
+  - Random Forest Regressor WAPE difference from Mean Baseline   = +1.2396 percentage points (MAE diff = +1.6707).
+  - Naive Lag-1 Baseline WAPE difference from Mean Baseline      = +23.3264 percentage points (MAE diff = +31.4387).
+
+================================================================================
+14. ZERO-DEMAND ANALYSIS (VALIDATION ONLY)
+================================================================================
+Validation Zero-Demand Rows     : 33 (0.4521% of 7,300 rows)
+Validation Non-Zero Demand Rows : 7267 (99.5479% of 7,300 rows)
+
+Model                             Zero_Target_Count    Zero_Target_MAE   Nonzero_Target_Count   Nonzero_Target_MAE
+------------------------------------------------------------------------------------------------------------------
+Naive Historical Baseline                        33           154.7273                   7267             120.3732
+Mean Baseline                                    33           136.6098                   7267              88.8740
+Ridge Regression                                 33           136.8038                   7267              88.8787
+Random Forest Regressor                          33           139.6103                   7267              90.5387
+HistGradientBoostingRegressor                    33           137.1414                   7267              88.9174
+
+Zero-Demand Diagnostic Note:
+  - On zero-demand rows (33 rows, 0.45% of validation), all models predict around ~135-141 units, incurring ~136-141 MAE.
+  - However, because zero-demand rows represent only 0.45% of observations, their contribution to overall MAE (89.09)
+    is only ~0.21 MAE units. Thus, zero-demand observations DO NOT explain the weak overall baseline performance;
+    rather, the broad dispersion across non-zero demand rows (Non-zero MAE ~ 88.88) drives the aggregate error.
+
+================================================================================
+15. VALIDATION ERROR BY ACTUAL TARGET RANGE
+================================================================================
+
+Model: Ridge Regression
+  Target_Range      Count    Pct%   Mean_Actual    Mean_Pred  Mean_Error(P-A)        MAE       RMSE
+  ------------------------------------------------------------------------------------------------
+  0–49              1,903  26.07%         24.57       136.55          +111.98     111.98     112.93
+  50–99             1,629  22.32%         73.32       136.59           +63.27      63.27      64.96
+  100–149           1,087  14.89%        123.73       136.43           +12.70      15.80      19.39
+  150–199             839  11.49%        172.44       136.49           -35.95      35.95      38.75
+  200–299           1,092  14.96%        244.19       136.56          -107.63     107.63     111.59
+  300–399             572   7.84%        341.46       136.56          -204.90     204.90     206.85
+  400+                178   2.44%        430.01       136.99          -293.02     293.02     294.01
+
+Model: Random Forest Regressor
+  Target_Range      Count    Pct%   Mean_Actual    Mean_Pred  Mean_Error(P-A)        MAE       RMSE
+  ------------------------------------------------------------------------------------------------
+  0–49              1,903  26.07%         24.57       142.17          +117.60     117.60     119.27
+  50–99             1,629  22.32%         73.32       142.22           +68.90      68.90      71.60
+  100–149           1,087  14.89%        123.73       142.25           +18.52      22.15      27.37
+  150–199             839  11.49%        172.44       142.54           -29.90      31.33      36.53
+  200–299           1,092  14.96%        244.19       142.16          -102.03     102.03     107.17
+  300–399             572   7.84%        341.46       142.58          -198.88     198.88     201.37
+  400+                178   2.44%        430.01       143.54          -286.46     286.46     287.83
+
+Model: HistGradientBoostingRegressor
+  Target_Range      Count    Pct%   Mean_Actual    Mean_Pred  Mean_Error(P-A)        MAE       RMSE
+  ------------------------------------------------------------------------------------------------
+  0–49              1,903  26.07%         24.57       136.73          +112.17     112.17     113.13
+  50–99             1,629  22.32%         73.32       136.94           +63.62      63.62      65.30
+  100–149           1,087  14.89%        123.73       136.80           +13.08      16.06      19.75
+  150–199             839  11.49%        172.44       137.00           -35.44      35.47      38.40
+  200–299           1,092  14.96%        244.19       136.97          -107.22     107.22     111.19
+  300–399             572   7.84%        341.46       136.77          -204.69     204.69     206.65
+  400+                178   2.44%        430.01       136.61          -293.39     293.39     294.36
+
+Target-Range Diagnostic Finding:
+  - Across every single actual demand range (from 0–49 up to 400+), mean model predictions stay nearly flat (~136.4 to ~137.0
+    for Ridge/HGB, ~142.2 to ~143.5 for RF). Consequently:
+    * Low demand (0–99) is systematically OVER-PREDICTED (+63 to +118 units bias).
+    * Mid demand (100–149) has the lowest MAE (~15.8 to ~22.2 units) strictly because the global mean (~136.6) falls inside this bin.
+    * High demand (200–400+) is systematically UNDER-PREDICTED (-102 to -293 units bias).
+
+================================================================================
+16. VALIDATION ERROR BY CATEGORY
+================================================================================
+  Group             Count  Mean_Act | Ridge_Mean Ridge_MAE Ridge_WAPE |  RF_Mean   RF_MAE  RF_WAPE | HGB_Mean  HGB_MAE HGB_WAPE
+  -----------------------------------------------------------------------------------------------------------------------------------
+  Clothing          1,469    136.09 |     136.65     90.26     66.32% |   142.40    91.64   67.34% |   136.84    90.18   66.27%
+  Electronics       1,450    131.85 |     135.27     86.85     65.87% |   142.07    89.03   67.53% |   136.78    87.32   66.23%
+  Furniture         1,487    135.91 |     137.20     89.92     66.16% |   142.30    91.45   67.28% |   136.84    89.82   66.09%
+  Groceries         1,406    136.97 |     137.57     88.35     64.50% |   142.55    89.80   65.56% |   136.79    88.14   64.35%
+  Toys              1,488    133.13 |     136.08     90.02     67.61% |   142.20    91.80   68.95% |   137.02    90.13   67.70%
+
+================================================================================
+17. VALIDATION ERROR BY REGION
+================================================================================
+  Group             Count  Mean_Act | Ridge_Mean Ridge_MAE Ridge_WAPE |  RF_Mean   RF_MAE  RF_WAPE | HGB_Mean  HGB_MAE HGB_WAPE
+  -----------------------------------------------------------------------------------------------------------------------------------
+  East              1,881    134.00 |     137.31     90.34     67.41% |   141.79    91.34   68.16% |   136.87    90.22   67.33%
+  North             1,803    132.88 |     136.59     88.97     66.95% |   142.62    90.88   68.39% |   136.85    88.97   66.95%
+  South             1,833    136.28 |     137.01     88.37     64.84% |   142.77    90.10   66.11% |   136.90    88.26   64.76%
+  West              1,783    135.96 |     135.23     88.66     65.21% |   142.02    90.71   66.72% |   136.80    89.06   65.50%
+
+================================================================================
+18. VALIDATION ERROR BY SEASONALITY
+================================================================================
+  Group             Count  Mean_Act | Ridge_Mean Ridge_MAE Ridge_WAPE |  RF_Mean   RF_MAE  RF_WAPE | HGB_Mean  HGB_MAE HGB_WAPE
+  -----------------------------------------------------------------------------------------------------------------------------------
+  Autumn            1,777    136.05 |     137.41     89.06     65.46% |   142.36    90.90   66.81% |   136.92    89.16   65.54%
+  Spring            1,840    134.36 |     135.96     91.08     67.79% |   142.27    92.51   68.85% |   136.85    91.07   67.78%
+  Summer            1,821    134.27 |     135.65     86.83     64.67% |   141.75    88.09   65.60% |   136.71    86.97   64.77%
+  Winter            1,862    134.47 |     137.18     89.38     66.47% |   142.81    91.52   68.06% |   136.95    89.31   66.42%
+
+================================================================================
+19. FEATURE FAMILY DIAGNOSTIC SUMMARY (TRAIN ONLY)
+================================================================================
+Feature_Family               Num_Features   Avg_|Pearson_r|   Max_|Pearson_r|   Max_|Spearman_r| Missing_Features_Count
+----------------------------------------------------------------------------------------------------------------------
+A. Calendar                             5          0.001932          0.004262           0.006578                      0
+B. Historical Demand                   14          0.003016          0.010626           0.011688                     14
+C. Demand Variability                   3          0.003678          0.004934           0.005197                      3
+D. Inventory / Ordering                 4          0.003403          0.005298           0.006560                      4
+E. Pricing / Promotion                  4          0.004384          0.010221           0.009182                      4
+F. Categorical Context                  3 N/A (Categorical) N/A (Categorical)  N/A (Categorical)                      0
+
+================================================================================
+20. LEAKAGE VERIFICATION
+================================================================================
+  1. Was 'Demand Forecast' used anywhere in Step 10 or Step 11?         : NO (0 occurrences)
+  2. Was same-day 'Inventory Level' or 'Units Ordered' used?            : NO (Only Lag_1 / 7-day pre-t ratios used)
+  3. Was same-day 'Price', 'Discount', 'Competitor Pricing' used?       : NO (Only Lag_1 features used)
+  4. Were 'Store ID', 'Product ID', or 'Date' included in X?            : NO (Verified excluded)
+  5. Were all imputer medians, scalers, and OHE fitted on TRAIN only?   : YES (Verified inside saved Pipeline)
+  6. Was VALIDATION used for training or fitting preprocessors?         : NO
+  7. Was TEST used for predictions, correlations, or error diagnostics? : NO (Strictly untouched)
+  Leakage Verification Status: PASS
+  [CHART GENERATED] C:\SIM&DFS\reports\figures\step11\step11_target_distribution.png (91,121 bytes)
+  [CHART GENERATED] C:\SIM&DFS\reports\figures\step11\step11_prediction_distribution.png (122,557 bytes)
+  [CHART GENERATED] C:\SIM&DFS\reports\figures\step11\step11_random_forest_feature_importance.png (107,091 bytes)
+
+================================================================================
+21. FINDINGS
+================================================================================
+
+A. CONFIRMED STRENGTHS:
+  1. Exact Feature Compliance: Step 10 used the exact locked 33-feature schema (3 categorical: Category, Region,
+     Seasonality; 30 numerical). Zero unapproved, metadata (Store ID, Product ID, Date), or leakage columns entered X.
+  2. Strict Leakage-Safe Architecture: All preprocessing (OneHotEncoder, median SimpleImputer, StandardScaler)
+     was fitted exclusively on TRAIN (58,500 rows). Chronological boundaries and TEST isolation are 100% intact.
+  3. Numerical & Pipeline Stability: Zero negative predictions, zero NaNs in validation predictions, and well-calibrated
+     unconditional means (~136.55 for Ridge, ~136.86 for HGB vs actual ~134.78).
+
+B. CONFIRMED ISSUES (ROOT CAUSE OF NEAR-MEAN BASELINE PERFORMANCE):
+  1. Near-Zero Pre-Timestamp Signal in Historical Lags & Context: Across all 30 numerical features in TRAIN,
+     the maximum absolute Pearson correlation with Units Sold is 0.010626 (Units_Sold_Rolling_Std_30) and Spearman is 0.011688.
+     Even lag-1 demand has Pearson r = +0.001074, proving that once contemporaneous leakage columns (such as same-day
+     Demand Forecast or same-day Inventory/Price) are properly removed, day-to-day fluctuations in Units Sold
+     exhibit virtually zero linear or monotonic autocorrelation.
+  2. Severe Prediction Compression Toward the Mean: Because historical features explain almost zero variance
+     of next-day Units Sold, squared-error minimization mathematically forces regularized models (Ridge STD = 3.1077,
+     Ratio = 0.0286; HGB STD = 3.3280, Ratio = 0.0306) to compress predictions tightly around the global mean (~136.6).
+  3. Over-Dispersion Penalty in Unconstrained Trees: Unconstrained Random Forest (max_depth=None) produces wider
+     prediction dispersion (STD = 13.8183, Ratio = 0.1271) by fitting local training noise, which degrades validation
+     MAE from 89.0898 (Mean Baseline) / 89.0954 (Ridge) to 90.7605 (+1.67 units worse) and R² to -0.0188.
+  4. Target Dispersion vs. Zero-Demand Rows: Zero-demand rows represent only 0.45% (33 rows) of validation and
+     account for only ~0.21 units of total MAE. The 66.1% WAPE is driven by the wide uniform-like spread of non-zero
+     demand (IQR = 153 units, STD = 108.69 units) across the [0, 488] range.
+
+================================================================================
+22. RECOMMENDATIONS FOR STEP 12
+================================================================================
+
+C. AREAS REQUIRING FURTHER INVESTIGATION:
+  1. Entity-Specific (Store ID x Product ID) Historical Conditioning: While Store ID and Product ID are excluded as
+     raw high-cardinality identifiers, checking whether entity-level expanding means or entity-specific regimes exist.
+  2. Loss Function Alignment: Since WAPE and MAE are L1-based metrics whereas Step 10 models optimized L2 (squared error)
+     on a right-skewed target (Mean = 136.61 vs Median = 108.00), L2 models predict ~136.61 instead of the median (~108.00).
+  3. Tree Regularization Effect: Testing whether constraining tree depth and leaf size in Random Forest / HGB prevents
+     noise fitting and stabilizes validation error.
+
+D. SAFE NEXT-STEP EXPERIMENTS (FOR STEP 12):
+  1. Objective Function Comparison (L1 / Absolute Error vs L2 / Squared Error / Poisson / Tweedie) within tree models
+     to align model predictions with MAE/WAPE evaluation rather than L2 mean compression.
+  2. Controlled Regularization & Hyperparameter Exploration on Validation (e.g., constraining max_depth, min_samples_leaf,
+     and l2_regularization) to eliminate Random Forest variance inflation without overfitting validation.
+  3. Feature Interaction & Collinearity Pruning Audit: Evaluating whether removing collinear overlapping rolling windows
+     (where Ridge assigns -5.8033 to Rolling_Std_14, +5.6391 to Rolling_Mean_14, and +5.4300 to Demand_CV_14)
+     stabilizes linear and gradient-boosted estimators.
+
+============================================================
+STEP 11 — BASELINE DIAGNOSTIC AUDIT COMPLETE
+============================================================
+
+Feature usage verification: PASS
+Categorical feature verification: PASS
+Dataset integrity: PASS
+Leakage verification: PASS
+Validation prediction diagnostics: PASS
+Target distribution audit: PASS
+Feature relationship audit: PASS
+Feature importance audit: PASS
+No model retraining: PASS
+No dataset modification: PASS
+Test data untouched: PASS
+
+FINAL STATUS:
+STEP 11 BASELINE DIAGNOSTIC AUDIT: SUCCESS

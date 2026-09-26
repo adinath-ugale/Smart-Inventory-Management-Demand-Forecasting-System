@@ -1,0 +1,152 @@
+================================================================================
+SMART INVENTORY MANAGEMENT & DEMAND FORECASTING SYSTEM
+STEP 9 — CHRONOLOGICAL TRAIN / VALIDATION / TEST SPLIT
+================================================================================
+Source file       : C:\SIM&DFS\data\processed\model_ready_dataset.csv
+Splits directory  : C:\SIM&DFS\data\processed\splits
+Report file       : C:\SIM&DFS\reports\chronological_split_report.txt
+
+--- 1. SOURCE DATASET VERIFICATION ---
+Source file found : C:\SIM&DFS\data\processed\model_ready_dataset.csv
+Initial size      : 25,931,428 bytes
+Initial SHA-256   : c40d670ef3ea9095217ad5f96ec6ccfc6d413e4224ead1e04b2a98a11c4e4d1f
+Source rows       : 73,100 (Expected: 73,100)
+Source columns    : 37 (Expected: 37)
+
+--- 2. CHRONOLOGICAL DATE BOUNDARY DETERMINATION ---
+Total unique calendar dates : 731
+Global Date Range           : 2022-01-01 to 2024-01-01
+Observations per date       : min = 100, max = 100 (Expected: 100)
+
+Calculated Boundaries:
+  TRAIN      : 2022-01-01 to 2023-08-08 (585 unique dates)
+  VALIDATION : 2023-08-09 to 2023-10-20 (73 unique dates)
+  TEST       : 2023-10-21 to 2024-01-01 (73 unique dates)
+
+--- 3. CREATING CHRONOLOGICAL SPLITS ---
+Split Row Counts & Proportions:
+  Train rows      : 58,500 (80.03%)
+  Validation rows :  7,300 (9.99%)
+  Test rows       :  7,300 (9.99%)
+  Total rows      : 73,100 (Source: 73,100)
+
+--- 4. COLUMN & SCHEMA PRESERVATION ---
+  [Train] Exactly 37 columns, identical order to source: PASS
+  [Validation] Exactly 37 columns, identical order to source: PASS
+  [Test] Exactly 37 columns, identical order to source: PASS
+
+--- 5. TEMPORAL ORDERING & MONOTONICITY VALIDATION ---
+  TRAIN chronological order monotonic       : True (PASS)
+  VALIDATION chronological order monotonic  : True (PASS)
+  TEST chronological order monotonic        : True (PASS)
+  max(TRAIN Date) < min(VALIDATION Date)     : True (2023-08-08 < 2023-08-09) (PASS)
+  max(VALIDATION Date) < min(TEST Date)      : True (2023-10-20 < 2023-10-21) (PASS)
+  Within-group chronological monotonicity   : Train=True, Val=True, Test=True (PASS)
+
+--- 6. DATE & ROW OVERLAP VALIDATION ---
+  Date Overlap (Train ∩ Validation) : 0
+  Date Overlap (Train ∩ Test)       : 0
+  Date Overlap (Validation ∩ Test)  : 0
+  Row Overlap (Train ∩ Validation)  : 0
+  Row Overlap (Train ∩ Test)        : 0
+  Row Overlap (Validation ∩ Test)   : 0
+  Complete Source Row Coverage      : True (73,100 / 73,100)
+
+--- 7. STORE-PRODUCT GROUP VALIDATION ---
+  [Train] Unique Stores: 5 | Products: 20 | Store-Product Groups: 100 (Expected: 100)
+  [Validation] Unique Stores: 5 | Products: 20 | Store-Product Groups: 100 (Expected: 100)
+  [Test] Unique Stores: 5 | Products: 20 | Store-Product Groups: 100 (Expected: 100)
+
+--- 8. MISSING VALUE AUDIT ACROSS SPLITS ---
+                    Feature  Source NaNs  Train NaNs  Val NaNs  Test NaNs  Sum Matches Source
+           Units_Sold_Lag_1          100         100         0          0                True
+           Units_Sold_Lag_3          300         300         0          0                True
+           Units_Sold_Lag_7          700         700         0          0                True
+          Units_Sold_Lag_14         1400        1400         0          0                True
+          Units_Sold_Lag_21         2100        2100         0          0                True
+          Units_Sold_Lag_30         3000        3000         0          0                True
+  Units_Sold_Rolling_Mean_7          700         700         0          0                True
+   Units_Sold_Rolling_Std_7          700         700         0          0                True
+ Units_Sold_Rolling_Mean_14         1400        1400         0          0                True
+  Units_Sold_Rolling_Std_14         1400        1400         0          0                True
+ Units_Sold_Rolling_Mean_30         3000        3000         0          0                True
+  Units_Sold_Rolling_Std_30         3000        3000         0          0                True
+Units_Sold_Rolling_Median_7          700         700         0          0                True
+         Units_Sold_Trend_7          700         700         0          0                True
+                Demand_CV_7          700         700         0          0                True
+               Demand_CV_14         1400        1400         0          0                True
+               Demand_CV_30         3000        3000         0          0                True
+            Inventory_Lag_1          100         100         0          0                True
+        Units_Ordered_Lag_1          100         100         0          0                True
+Inventory_Demand_Coverage_7          700         700         0          0                True
+       Order_Demand_Ratio_7          700         700         0          0                True
+                Price_Lag_1          100         100         0          0                True
+             Discount_Lag_1          100         100         0          0                True
+ Competitor_Price_Gap_Lag_1          100         100         0          0                True
+            Promotion_Lag_1          100         100         0          0                True
+
+All split-level missing counts sum exactly to source: True
+Validation & Test NaNs: exactly 0 across all features (historical lag initialization isolated entirely in Train).
+
+--- 9. TARGET VARIABLE INTEGRITY & DESCRIPTIVE STATS ---
+     Split  Count  Missing  Negatives  Min  25%   50%   75%   Max       Mean        Std
+    Source  73100        0          0  0.0 49.0 107.0 203.0 499.0 136.464870 108.919406
+     TRAIN  58500        0          0  0.0 49.0 108.0 203.0 499.0 136.609795 109.086512
+VALIDATION   7300        0          0  0.0 47.0 104.0 200.0 488.0 134.777123 108.686365
+      TEST   7300        0          0  0.0 49.0 108.0 205.0 496.0 136.991233 107.805981
+
+--- 10. POST-SPLIT LEAKAGE AUDIT ---
+  [PASS] 1. TRAIN contains only earlier dates than VALIDATION
+  [PASS] 2. VALIDATION contains only earlier dates than TEST
+  [PASS] 3. TEST contains no dates earlier than VALIDATION
+  [PASS] 4. No target values from VALIDATION or TEST are present in TRAIN
+  [PASS] 5. No target values from TEST are present in TRAIN or VALIDATION
+  [PASS] 6. No rows are duplicated across splits
+  [PASS] 7. No future date is present in an earlier split
+  [PASS] 8. No random shuffling occurred (monotonically sorted by Date, Store, Product)
+  [PASS] 9. No model training occurred
+  [PASS] 10. No predictions were generated
+
+--- 11. SAVING CHRONOLOGICAL SPLIT DATASETS ---
+Train dataset saved      : C:\SIM&DFS\data\processed\splits\train.csv (20,674,610 bytes)
+Validation dataset saved : C:\SIM&DFS\data\processed\splits\validation.csv (2,623,119 bytes)
+Test dataset saved       : C:\SIM&DFS\data\processed\splits\test.csv (2,630,690 bytes)
+
+--- 12. SOURCE DATASET PRESERVATION CHECK ---
+Source file exists       : True
+SHA-256 match            : True (c40d670ef3ea9095217ad5f96ec6ccfc6d413e4224ead1e04b2a98a11c4e4d1f)
+Size match               : True (25,931,428 bytes)
+Timestamp match          : True
+Source dataset modified  : NO
+
+--- 13. BOUNDARY SUMMARY TABLE ---
+     Split Start Date   End Date  Unique Dates   Rows Percentage
+     TRAIN 2022-01-01 2023-08-08           585 58,500     80.03%
+VALIDATION 2023-08-09 2023-10-20            73  7,300      9.99%
+      TEST 2023-10-21 2024-01-01            73  7,300      9.99%
+     TOTAL 2022-01-01 2024-01-01           731 73,100    100.00%
+
+--- 14. FINAL VALIDATION CHECKLIST ---
+  [PASS] Source dataset exists
+  [PASS] Source schema = 73,100 × 37
+  [PASS] Source dataset unchanged
+  [PASS] Train file created
+  [PASS] Validation file created
+  [PASS] Test file created
+  [PASS] All splits have 37 columns
+  [PASS] No columns added/removed
+  [PASS] Chronological order preserved
+  [PASS] Train before validation
+  [PASS] Validation before test
+  [PASS] No date overlap
+  [PASS] No row overlap
+  [PASS] Complete row coverage
+  [PASS] 100 Store-Product groups preserved
+  [PASS] No unexpected missing values
+  [PASS] Target has no missing values
+  [PASS] Target has no negative values
+  [PASS] Feature schema preserved
+  [PASS] No future information enters earlier split
+  [PASS] No random splitting
+  [PASS] No model training
+  [PASS] No predictions

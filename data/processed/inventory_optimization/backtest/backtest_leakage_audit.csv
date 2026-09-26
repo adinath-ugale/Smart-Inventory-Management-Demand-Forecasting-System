@@ -1,0 +1,14 @@
+Check_ID,Check_Description,Status,Verification_Detail
+CHECK 1,No TEST rows used,PASS,0 TEST rows in development/backtest population (max date = 2023-10-20)
+CHECK 2,No TEST Units Sold used,PASS,Forward demand windows stop at 2023-10-20; 2023-10-18..20 set to NaN for 4D
+CHECK 3,Decision features use Date < D only,PASS,Max_Source_Demand_Date_Used <= D - 1 day for 100% of rows
+CHECK 4,Current-day Units Sold is not used to calculate policy parameters,PASS,Demand_Baseline and Demand_Std shifted by +1 day before expanding calculation
+CHECK 5,Future Units Sold is used ONLY as backtest outcome,PASS,Future_Demand_2D/4D/7D computed strictly post-decision and never fed into policy formulas
+CHECK 6,Future demand does not enter Demand_Baseline,PASS,Demand_Baseline 100% identical to locked Step 5 pre-decision values
+CHECK 7,Future demand does not enter Demand_Std,PASS,Demand_Std 100% identical to locked Step 5 pre-decision values
+CHECK 8,Future demand does not enter Safety_Stock,PASS,Safety_Stock = Z * Demand_Std * sqrt(LT) verified to 1e-12
+CHECK 9,Future demand does not enter Reorder_Point,PASS,Reorder_Point = Lead_Time_Demand + Safety_Stock verified to 1e-12
+CHECK 10,Demand Forecast is not used,PASS,Demand Forecast column completely excluded
+CHECK 11,Units Ordered is not used to reconstruct inventory,PASS,No synthetic Inventory + Orders - Sales reconstruction performed
+CHECK 12,Store x Product entity boundaries are preserved,PASS,Forward sums and baselines computed strictly within each of 100 Store_Product_IDs
+CHECK 13,TEST SHA-256 unchanged,PASS,SHA-256 identical before & after (4fd35bc0da8548ed50e347d6d0a00f925d75a40ee3382f79f51dff3462edbe96)

@@ -1,0 +1,5 @@
+Population_Subset,Row_Count,Zero_Inventory_Count,Zero_Inventory_Rate_Pct,Min_Recorded_Inventory_Level,Max_Recorded_Inventory_Level,Semantics_Note
+"All TRAIN + VALIDATION Rows (65,800)",65800,0,0.0,50.0,500.0,Inventory_Level <= 0 flag only; timing semantics unknown ('unknown').
+"Base Policy REORDER Rows (Backtest Eligible 4D: 65,400)",65400,0,0.0,50.0,500.0,0 rows have Inventory Level <= 0; minimum recorded Inventory Level is 50.0 units.
+Base Policy MONITOR Rows (Backtest Eligible 4D: 0),0,0,,,,"0 MONITOR rows in Base LT=4, SL=95% scenario."
+"LT2_SL90 MONITOR Rows (Backtest Eligible 2D: 4,502)",4502,0,0.0,264.0,500.0,0 rows have Inventory Level <= 0 among LT2_SL90 MONITOR rows.
