@@ -221,6 +221,30 @@ C:\SIM&DFS\
 
 ---
 
+## 📊 Dashboard
+
+The Smart Inventory Management & Demand Forecasting System includes an interactive Streamlit dashboard for demand analysis, inventory decisions, scenario comparison, and backtest validation.
+
+### Dashboard Overview
+
+![Dashboard Overview](docs/screenshots/overview.png)
+
+### Demand Analysis
+
+![Demand Analysis](docs/screenshots/demand_analysis.png)
+
+### Inventory Decision
+
+![Inventory Decision](docs/screenshots/inventory_decision.png)
+
+### Scenario Comparison
+
+![Scenario Comparison](docs/screenshots/scenario_comparison.png)
+
+### Backtest & Validation
+
+![Backtest & Validation](docs/screenshots/backtest_validation.png)
+
 ## 15. Installation
 
 1. **Clone the repository**:
